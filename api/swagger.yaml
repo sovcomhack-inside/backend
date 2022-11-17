@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: Messenger
+  description: "inside"
+  version: 0.0.1
+servers:
+  - url: http://127.0.0.1:8080/api
+security:
+  - CookieAuth: []
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Authorization
+      summary: Signup user
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupUserRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: {}
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignupUserResponse"
+
+  /auth/login:
+    post:
+      tags:
+        - Authorization
+      summary: Login user
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginUserRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: {}
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginUserResponse"
+
+  /auth/logout:
+    delete:
+      tags:
+        - Authorization
+      summary: Logout user
+      security: []
+      responses:
+        "500":
+          description: Internal error
+          content: {}
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BasicResponse"
+
+components:
+  parameters:
+    orderParam:
+      in: query
+      name: order
+      schema:
+        type: string
+        enum: ["asc", "desc"]
+    limitParam:
+      in: query
+      name: limit
+      description: Pass '-1' integer to get all entries
+      schema:
+        type: integer
+        minimum: 1
+        default: 10
+    sortByParam:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: ["created_at"]
+    offsetParam:
+      in: query
+      name: offset
+      schema:
+        type: integer
+        default: 0
+    selectorParam:
+      in: query
+      name: selector
+      description: A string to search for in all fields
+      schema:
+        type: string
+
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: AuthToken
+
+  schemas:
+    SignupUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: mail@example.com
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        password:
+          type: string
+          example: password
+
+    SignupUserResponse:
+      $ref: "#/components/schemas/BasicResponse"
+
+    LoginUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: mail@example.com
+        password:
+          type: string
+          example: password
+
+    LoginUserResponse:
+      $ref: "#/components/schemas/BasicResponse"
+
+    BasicResponse:
+      type: object

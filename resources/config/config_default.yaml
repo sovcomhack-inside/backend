@@ -1,0 +1,9 @@
+version: 1.0.0
+
+service:
+  bind:
+    address: 0.0.0.0
+    port: 8080
+
+postgres:
+  connection_string: postgres://root:rootpassword@postgres:5432/inside
