@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -24,21 +26,19 @@ func errorHandler(ctx *fiber.Ctx, err error) error {
 }
 
 type APIService struct {
-	log    *logger.Logger
 	router *fiber.App
 }
 
 func (svc *APIService) Serve(addr string) {
-	svc.log.Fatal(svc.router.Listen(addr))
+	logger.Fatal(context.Background(), svc.router.Listen(addr))
 }
 
 func (svc *APIService) Shutdown() error {
 	return svc.router.Shutdown()
 }
 
-func NewAPIService(log *logger.Logger, dbRegistry store.Store) (*APIService, error) {
+func NewAPIService(dbRegistry store.Store) (*APIService, error) {
 	svc := &APIService{
-		log: log,
 		router: fiber.New(fiber.Config{
 			ErrorHandler: errorHandler,
 			JSONEncoder:  sonic.Marshal,
@@ -46,8 +46,8 @@ func NewAPIService(log *logger.Logger, dbRegistry store.Store) (*APIService, err
 		}),
 	}
 
-	service := service.NewService(log, dbRegistry)
-	controller := controller.NewController(log, service)
+	service := service.NewService(dbRegistry)
+	controller := controller.NewController(service)
 
 	api := svc.router.Group("/api", recover.New())
 

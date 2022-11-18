@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
-	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/service"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
@@ -49,6 +48,6 @@ func (c *Controller) LogoutUser(ctx *fiber.Ctx) error {
 	return ctx.JSON(&dto.BasicResponse{})
 }
 
-func NewAuthController(log *logger.Logger, service service.Service) *Controller {
-	return &Controller{log: log, service: service}
+func NewAuthController(service service.Service) *Controller {
+	return &Controller{service: service}
 }

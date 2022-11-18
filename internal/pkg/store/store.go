@@ -7,6 +7,7 @@ import (
 	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
 )
 
+type Tx = xpgx.Tx
 type Pool = xpgx.Pool
 
 type Store interface {

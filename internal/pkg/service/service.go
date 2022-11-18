@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/store"
 )
@@ -14,12 +13,11 @@ type Service interface {
 }
 
 type service struct {
-	log   *logger.Logger
 	store store.Store
 }
 
-func NewService(log *logger.Logger, store store.Store) Service {
-	return &service{log, store}
+func NewService(store store.Store) Service {
+	return &service{store}
 }
 
 type AuthService interface {

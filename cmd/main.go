@@ -9,8 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
 
-	"go.uber.org/zap"
-
 	"github.com/sovcomhack-inside/internal/api"
 	"github.com/sovcomhack-inside/internal/pkg/store"
 	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
@@ -33,16 +31,6 @@ func main() {
 	viper.SetDefault("service.bind.address", DEFAULT_ADDRESS)
 	viper.SetDefault("service.bind.port", DEFAULT_PORT)
 
-	// -------------------- Set up logging -------------------- //
-
-	zlogger, err := zap.NewProduction()
-	if err != nil {
-		log.Fatalf("failed to set up the logger: %s\n", err)
-	}
-	defer zlogger.Sync()
-
-	logger := zlogger.Sugar()
-
 	// -------------------- Set up database -------------------- //
 
 	dbPool, err := pgxpool.New(context.Background(), viper.GetString("postgres.connection_string"))
@@ -55,7 +43,7 @@ func main() {
 
 	// -------------------- Set up service -------------------- //
 
-	svc, err := api.NewAPIService(logger, store)
+	svc, err := api.NewAPIService(store)
 	if err != nil {
 		log.Fatalf("error creating service instance: %s", err)
 	}
