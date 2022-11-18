@@ -56,7 +56,7 @@ func NewAPIService(dbRegistry store.Store) (*APIService, error) {
 	auth.Post("/login", controller.LoginUser)
 	auth.Delete("/logout", controller.LogoutUser)
 
-	oauth := api.Group("/oauth")
+	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
 	oauth.Get("/telegram", controller.OAuthTelegram)
 
 	return svc, nil
