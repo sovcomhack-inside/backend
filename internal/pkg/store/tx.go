@@ -10,8 +10,8 @@ import (
 	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
 )
 
-func withTx(ctx context.Context, pool Pool, fn func(ctx context.Context, tx Tx) error) (err error) {
-	pgxTx, err := pool.Begin(ctx)
+func (s *store) withTx(ctx context.Context, fn func(ctx context.Context, tx Tx) error) (err error) {
+	pgxTx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot begin transaction: %w", err)
 	}

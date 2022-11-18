@@ -29,6 +29,14 @@ type User struct {
 	UserPassword
 }
 
+type UserStatus string
+
+const (
+	UserStatusPendindApprove UserStatus = "pending_approve"
+	UserStatusApproved       UserStatus = "approved"
+	UserStatusBanned         UserStatus = "banned"
+)
+
 // Init generates salt and hash with given password and fills corresponding fields.
 func (up *UserPassword) Init(password string) error {
 	salt, err := GetSalt()

@@ -10,15 +10,23 @@ import (
 var userColumns = []string{"email", "image", "first_name", "last_name", "password_hash", "password_salt"}
 
 func (s *store) CreateUser(ctx context.Context, user *core.User) error {
-	query := builder().Insert(tableUsers).
-		Columns(userColumns...).
-		Values(user.Email, user.Image, user.FirstName, user.LastName, user.UserPassword.Hash, user.UserPassword.Salt)
+	return s.withTx(ctx, func(ctx context.Context, tx Tx) error {
+		query := builder().Insert(tableUsers).
+			Columns(userColumns...).
+			Values(user.Email, user.Image, user.FirstName, user.LastName, user.UserPassword.Hash, user.UserPassword.Salt).
+			Suffix("RETURNING id")
 
-	if _, err := s.pool.Execx(ctx, query); err != nil {
-		return err
-	}
+		if err := tx.Getx(ctx, user, query); err != nil {
+			return err
+		}
 
-	return nil
+		query = builder().Insert(tableUsersStatuses).Columns("id").Values(user.ID)
+		if _, err := tx.Execx(ctx, query); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *store) GetUserByEmail(ctx context.Context, email string) (*core.User, error) {
@@ -31,4 +39,12 @@ func (s *store) GetUserByEmail(ctx context.Context, email string) (*core.User, e
 	}
 
 	return user, nil
+}
+
+func (s *store) UpdateUserStatus(ctx context.Context, id int64, status core.UserStatus) error {
+	query := builder().Update(tableUsersStatuses).Set("status", status).Where(squirrel.Eq{"id": id})
+	if _, err := s.pool.Execx(ctx, query); err != nil {
+		return err
+	}
+	return nil
 }

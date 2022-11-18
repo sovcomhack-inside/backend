@@ -17,6 +17,6 @@ CREATE TYPE user_status AS ENUM (
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS users_statuses (
-  "id" tex REFERENCES users(id),
+  "id" bigserial PRIMARY KEY REFERENCES users(id),
   "status" user_status DEFAULT 'pending_approve' NOT NULL
 );
