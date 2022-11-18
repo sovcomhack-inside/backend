@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Messenger
+  title: Moni
   description: "inside"
   version: 0.0.1
 servers:
-  - url: http://127.0.0.1:8080/api
+  - url: http://127.0.0.1:8080/api/v1
 security:
   - CookieAuth: []
 
@@ -71,6 +71,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BasicResponse"
+
+  /accounts:
+    post:
+      tags:
+        - Accounts
+      summary: Create an account
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAccountResponse"
 
 components:
   parameters:
@@ -145,6 +168,26 @@ components:
 
     LoginUserResponse:
       $ref: "#/components/schemas/BasicResponse"
+
+    CreateAccountRequest:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        currency:
+          type: string
+          example: RUB
+
+    CreateAccountResponse:
+      type: object
+      properties:
+        account_number:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
+        currency:
+          type: string
+          example: RUB
 
     BasicResponse:
       type: object

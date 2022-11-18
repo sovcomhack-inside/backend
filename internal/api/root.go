@@ -7,6 +7,7 @@ import (
 	"github.com/sovcomhack-inside/internal/api/controller"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/logger"
+	"github.com/sovcomhack-inside/internal/pkg/service"
 	"github.com/sovcomhack-inside/internal/pkg/store"
 )
 
@@ -35,7 +36,11 @@ func (svc *APIService) Shutdown() error {
 	return svc.router.Shutdown()
 }
 
-func NewAPIService(log *logger.Logger, dbRegistry *store.Registry) (*APIService, error) {
+func NewAPIService(
+	log *logger.Logger,
+	dbRegistry *store.Registry,
+	accountService service.AccountService,
+) (*APIService, error) {
 	svc := &APIService{
 		log: log,
 		router: fiber.New(fiber.Config{
@@ -50,12 +55,17 @@ func NewAPIService(log *logger.Logger, dbRegistry *store.Registry) (*APIService,
 		return nil, err
 	}
 
-	api := svc.router.Group("/api", recover.New())
+	api := svc.router.Group("/api/v1", recover.New())
 
 	auth := api.Group("/auth")
 	auth.Post("/signup", registry.AuthController.SignupUser)
 	auth.Post("/login", registry.AuthController.LoginUser)
-	auth.Post("/logout", registry.AuthController.LogoutUser)
+	auth.Delete("/logout", registry.AuthController.LogoutUser)
+
+	accountController := controller.NewAccountController(log, accountService)
+
+	account := api.Group("/accounts", svc.AuthMiddleware())
+	account.Post("/", accountController.CreateAccount)
 
 	return svc, nil
 }

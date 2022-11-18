@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	tableUsers = "users"
+	tableUsers    = "users"
+	tableAccounts = "accounts"
 )
 
 var mapping = map[error]error{pgx.ErrNoRows: constants.ErrDBNotFound}

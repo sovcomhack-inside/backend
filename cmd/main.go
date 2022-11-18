@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/sovcomhack-inside/internal/pkg/service"
 	"github.com/spf13/viper"
 
 	"go.uber.org/zap"
@@ -55,7 +56,9 @@ func main() {
 
 	// -------------------- Set up service -------------------- //
 
-	svc, err := api.NewAPIService(logger, dbRegistry)
+	accountService := service.NewAccountService(logger, store.NewAccountStore(xpgx.NewPool(dbPool)))
+
+	svc, err := api.NewAPIService(logger, dbRegistry, accountService)
 	if err != nil {
 		log.Fatalf("error creating service instance: %s", err)
 	}
