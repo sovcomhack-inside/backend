@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CreateCookie(name, value string, ttl int64) *fiber.Cookie {
+func CreateHttpOnlyCookie(name, value string, ttl int64) *fiber.Cookie {
 	return &fiber.Cookie{
 		Name:     name,
 		Value:    value,

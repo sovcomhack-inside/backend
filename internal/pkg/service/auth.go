@@ -6,25 +6,13 @@ import (
 	"errors"
 
 	"github.com/sovcomhack-inside/internal/pkg/constants"
-	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
-	"github.com/sovcomhack-inside/internal/pkg/store"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 )
 
-type AuthService interface {
-	SignupUser(ctx context.Context, request *dto.SignupUserRequest) (*dto.SignupUserResponse, error)
-	LoginUser(ctx context.Context, request *dto.LoginUserRequest) (*dto.LoginUserResponse, error)
-}
-
-type authServiceImpl struct {
-	log   *logger.Logger
-	store *store.Registry
-}
-
-func (svc *authServiceImpl) SignupUser(ctx context.Context, request *dto.SignupUserRequest) (*dto.SignupUserResponse, error) {
-	if _, err := svc.store.UserStore.GetUserByEmail(ctx, request.Email); !errors.Is(err, constants.ErrDBNotFound) {
+func (svc *service) SignupUser(ctx context.Context, request *dto.SignupUserRequest) (*dto.SignupUserResponse, error) {
+	if _, err := svc.store.GetUserByEmail(ctx, request.Email); !errors.Is(err, constants.ErrDBNotFound) {
 		if err == nil {
 			return nil, constants.ErrEmailAlreadyTaken
 		}
@@ -40,7 +28,7 @@ func (svc *authServiceImpl) SignupUser(ctx context.Context, request *dto.SignupU
 		return nil, err
 	}
 
-	if err := svc.store.UserStore.CreateUser(ctx, user); err != nil {
+	if err := svc.store.CreateUser(ctx, user); err != nil {
 		return nil, err
 	}
 
@@ -52,8 +40,8 @@ func (svc *authServiceImpl) SignupUser(ctx context.Context, request *dto.SignupU
 	return &dto.SignupUserResponse{AuthToken: authToken}, nil
 }
 
-func (svc *authServiceImpl) LoginUser(ctx context.Context, request *dto.LoginUserRequest) (*dto.LoginUserResponse, error) {
-	user, err := svc.store.UserStore.GetUserByEmail(ctx, request.Email)
+func (svc *service) LoginUser(ctx context.Context, request *dto.LoginUserRequest) (*dto.LoginUserResponse, error) {
+	user, err := svc.store.GetUserByEmail(ctx, request.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +56,4 @@ func (svc *authServiceImpl) LoginUser(ctx context.Context, request *dto.LoginUse
 	}
 
 	return &dto.LoginUserResponse{AuthToken: authToken}, nil
-}
-
-func NewAuthService(log *logger.Logger, store *store.Registry) AuthService {
-	return &authServiceImpl{log: log, store: store}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/sovcomhack-inside/internal/api/controller"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/logger"
+	"github.com/sovcomhack-inside/internal/pkg/service"
 	"github.com/sovcomhack-inside/internal/pkg/store"
 )
 
@@ -35,7 +36,7 @@ func (svc *APIService) Shutdown() error {
 	return svc.router.Shutdown()
 }
 
-func NewAPIService(log *logger.Logger, dbRegistry *store.Registry) (*APIService, error) {
+func NewAPIService(log *logger.Logger, dbRegistry store.Store) (*APIService, error) {
 	svc := &APIService{
 		log: log,
 		router: fiber.New(fiber.Config{
@@ -45,17 +46,18 @@ func NewAPIService(log *logger.Logger, dbRegistry *store.Registry) (*APIService,
 		}),
 	}
 
-	registry, err := controller.NewRegistry(log, dbRegistry)
-	if err != nil {
-		return nil, err
-	}
+	service := service.NewService(log, dbRegistry)
+	controller := controller.NewController(log, service)
 
 	api := svc.router.Group("/api", recover.New())
 
 	auth := api.Group("/auth")
-	auth.Post("/signup", registry.AuthController.SignupUser)
-	auth.Post("/login", registry.AuthController.LoginUser)
-	auth.Post("/logout", registry.AuthController.LogoutUser)
+	auth.Post("/signup", controller.SignupUser)
+	auth.Post("/login", controller.LoginUser)
+	auth.Delete("/logout", controller.LogoutUser)
+
+	oauth := api.Group("/oauth")
+	oauth.Post("/telegram", controller.OAuthTelegram)
 
 	return svc, nil
 }
