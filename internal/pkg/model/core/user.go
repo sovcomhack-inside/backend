@@ -22,9 +22,9 @@ type UserPassword struct {
 }
 
 type User struct {
-	ID    string `db:"id"`
-	Email string `db:"email"`
-	Image string `db:"image"`
+	ID    string     `db:"id"`
+	Email NullString `db:"email"`
+	Image NullString `db:"image"`
 	UserName
 	UserPassword
 }

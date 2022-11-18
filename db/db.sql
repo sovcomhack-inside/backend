@@ -1,7 +1,7 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS users (
   "id" bigserial PRIMARY KEY,
-  "email" text NOT NULL UNIQUE,
-  "image" text NOT NULL,
+  "email" text UNIQUE,
+  "image" text,
   "first_name" text NOT NULL,
   "last_name" text NOT NULL,
   "password_hash" text NOT NULL,

@@ -21,7 +21,7 @@ func (svc *service) SignupUser(ctx context.Context, request *dto.SignupUserReque
 
 	user := &core.User{
 		UserName: request.UserName,
-		Email:    request.Email,
+		Email:    core.NewNullString(request.Email),
 	}
 
 	if err := user.UserPassword.Init(request.Password); err != nil {

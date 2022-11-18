@@ -13,7 +13,7 @@ func (svc *service) OAuthTelegram(ctx context.Context, request *dto.OAuthTelegra
 	user := &core.User{
 		ID:       request.ID,
 		UserName: core.UserName{FirstName: request.FirstName, LastName: request.LastName},
-		Image:    request.PhotoURL,
+		Image:    core.NewNullString(request.PhotoURL),
 	}
 
 	if err := svc.store.CreateUser(ctx, user); err != nil {

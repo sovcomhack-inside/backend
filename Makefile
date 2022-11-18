@@ -13,6 +13,8 @@ DCOMPOSE_BUILD_ARGS:=--build-arg CONFIG_PATH=${CONFIG_PATH} --parallel
 
 all: down build up
 
+c: down clean build up
+
 down:
 	docker-compose -f ${DCOMPOSE} down --remove-orphans
 
@@ -28,5 +30,8 @@ up:
 mod:
 	go mod tidy && go mod vendor && go install ./...
 
-acceptance:
-	go test -v ./test/acceptance
+clean:
+	rm -rf postgres-data
+
+network:
+	docker network inspect api >/dev/null 2>&1 || docker network create --driver bridge api

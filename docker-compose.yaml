@@ -25,6 +25,11 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U root -d inside" ]
-      interval: 1s
-      timeout: 3s
-      retries: 10
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  default:
+    name: api
+    external: true
