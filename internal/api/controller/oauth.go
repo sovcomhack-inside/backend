@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +16,7 @@ func (c *Controller) OAuthTelegram(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	err := c.service.OAuthTelegram(context.Background(), request)
+	err := c.service.OAuthTelegram(ctx.Context(), request)
 	if err != nil {
 		return err
 	}

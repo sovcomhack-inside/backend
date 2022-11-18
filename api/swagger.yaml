@@ -120,10 +120,10 @@ components:
         email:
           type: string
           example: mail@example.com
-        first_name:
+        firstName:
           type: string
           example: John
-        last_name:
+        lastName:
           type: string
           example: Doe
         password:

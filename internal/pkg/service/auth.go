@@ -37,7 +37,7 @@ func (svc *service) SignupUser(ctx context.Context, request *dto.SignupUserReque
 		return nil, err
 	}
 
-	return &dto.SignupUserResponse{AuthToken: authToken}, nil
+	return &dto.SignupUserResponse{User: user, AuthToken: authToken}, nil
 }
 
 func (svc *service) LoginUser(ctx context.Context, request *dto.LoginUserRequest) (*dto.LoginUserResponse, error) {
@@ -55,5 +55,5 @@ func (svc *service) LoginUser(ctx context.Context, request *dto.LoginUserRequest
 		return nil, err
 	}
 
-	return &dto.LoginUserResponse{AuthToken: authToken}, nil
+	return &dto.LoginUserResponse{User: user, AuthToken: authToken}, nil
 }

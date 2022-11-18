@@ -8,6 +8,7 @@ import (
 )
 
 type Service interface {
+	UserService
 	AuthService
 	OAuthService
 }
@@ -18,6 +19,10 @@ type service struct {
 
 func NewService(store store.Store) Service {
 	return &service{store}
+}
+
+type UserService interface {
+	UpdateUserStatus(ctx context.Context, request *dto.UpdateUserStatusRequest) (*dto.UpdateUserStatusResponse, error)
 }
 
 type AuthService interface {

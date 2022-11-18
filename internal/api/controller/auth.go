@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"context"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
@@ -17,14 +15,14 @@ func (c *Controller) SignupUser(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := c.service.SignupUser(context.Background(), request)
+	response, err := c.service.SignupUser(ctx.Context(), request)
 	if err != nil {
 		return err
 	}
 
 	ctx.Cookie(utils.CreateHttpOnlyCookie(constants.CookieKeyAuthToken, response.AuthToken, viper.GetInt64(constants.ViperJWTTTLKey)))
 
-	return ctx.JSON(nil)
+	return ctx.JSON(response)
 }
 
 func (c *Controller) LoginUser(ctx *fiber.Ctx) error {
@@ -33,14 +31,14 @@ func (c *Controller) LoginUser(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := c.service.LoginUser(context.Background(), request)
+	response, err := c.service.LoginUser(ctx.Context(), request)
 	if err != nil {
 		return err
 	}
 
 	ctx.Cookie(utils.CreateHttpOnlyCookie(constants.CookieKeyAuthToken, response.AuthToken, viper.GetInt64(constants.ViperJWTTTLKey)))
 
-	return ctx.JSON(nil)
+	return ctx.JSON(response)
 }
 
 func (c *Controller) LogoutUser(ctx *fiber.Ctx) error {

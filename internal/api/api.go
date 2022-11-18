@@ -59,5 +59,8 @@ func NewAPIService(dbRegistry store.Store) (*APIService, error) {
 	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
 	oauth.Get("/telegram", controller.OAuthTelegram)
 
+	// admin := api.Group("/admin")
+	// admin.Put("/update_user_status", controller.UpdateUserStatus)
+
 	return svc, nil
 }
