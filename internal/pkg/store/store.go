@@ -13,6 +13,7 @@ type Pool = xpgx.Pool
 type Store interface {
 	UserStore
 	AccountStore
+	OperationStore
 }
 
 type store struct {

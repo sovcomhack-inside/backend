@@ -115,6 +115,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ListUserAccountsResponse"
+  /accounts/refill:
+    post:
+      tags:
+        - Accounts
+      summary: Top up an account
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefillAccountRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefillAccountResponse"
 
 components:
   parameters:
@@ -217,6 +239,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccountItem'
+
+    RefillAccountRequest:
+      type: object
+      properties:
+        account_number:
+          type: string
+          example: a515a4bc-6805-11ed-9022-0242ac120002
+        debit_amount_cents:
+          type: integer
+          example: 123
+
+    RefillAccountResponse:
+      type: object
+      properties:
+        old_balance:
+          type: integer
+          example: 1000
+        new_balance:
+          type: integer
+          example: 1123
+        purpose:
+          type: string
+          example: Пополнение счета с банковской карты
 
 
     AccountItem:

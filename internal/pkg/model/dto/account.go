@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"github.com/google/uuid"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
 )
 
@@ -18,4 +19,15 @@ type ListUserAccountsRequest struct {
 
 type ListUserAccountResponse struct {
 	Accounts []core.Account `json:"accounts"`
+}
+
+type RefillAccountRequest struct {
+	AccountNumber    uuid.UUID `json:"account_number"`
+	DebitAmountCents int64     `json:"debit_amount_cents"`
+}
+
+type RefillAccountResponse struct {
+	OldBalance int64  `json:"old_balance"`
+	NewBalance int64  `json:"new_balance"`
+	Purpose    string `json:"purpose"`
 }

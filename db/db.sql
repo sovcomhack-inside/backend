@@ -22,11 +22,11 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users_statuses (
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS accounts (
-     number uuid,
+     number uuid not null primary key default gen_random_uuid(),
      user_id bigint,
      created_at timestamptz default now(),
      currency varchar(3) not null,
-     cents bigint not null default 0
+     balance bigint not null default 0
 );
 
 CREATE UNIQUE INDEX CONCURRENTLY account_user_id_currency
@@ -36,17 +36,19 @@ create type operation_type as enum (
     'refill',
     'withdrawal',
     'transfer_incoming',
-    'transfer_outgoing',
-    'purchase',
-    'sale'
+    'transfer_outgoing'
     );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS operations (
-   id uuid not null primary key,
-   operation_type operation_type not null,
+   id uuid not null primary key default gen_random_uuid(),
    purpose text,
+   operation_type operation_type not null,
    time timestamptz default now(),
-   account_number varchar(20),
+   account_number uuid,
    account_amount_cents bigint,
-   account_amount_currency varchar(3)
+   account_amount_currency varchar(3),
+   original_account_number uuid,
+   original_amount_cents bigint,
+   original_amount_currency varchar(3),
+   exchange_rate_ratio float
 );
