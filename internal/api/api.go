@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sovcomhack-inside/internal/api/controller"
 	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/service"
@@ -31,7 +32,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	service := service.NewService(store)
 	controller := controller.NewController(service)
 
-	// svc.router.Use(svc.XRequestIDMiddleware(), svc.LoggingMiddleware(), svc.AccessLogMiddleware())
+	svc.router.Use(middleware.Logger())
 
 	api := svc.router.Group("/api/v1")
 
@@ -48,7 +49,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	oauth.GET("/telegram", controller.OAuthTelegram)
 
 	admin := api.Group("/admin")
-	admin.PUT("/update_user_status", controller.UpdateUserStatus)
+	admin.POST("/login", controller.LoginAdmin)
+	admin.PUT("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
 
 	return svc, nil
 }

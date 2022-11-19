@@ -18,6 +18,7 @@ all: down build up
 c: down clean build up
 
 rebuild-backend:
+	cp ${CONFIG_SOURCE_PATH} ${CONFIG_PATH}
 	docker-compose -f ${DCOMPOSE} stop backend
 	${DOCKER_BUILD_KIT} docker-compose build ${DCOMPOSE_BUILD_ARGS} backend
 	docker-compose -f ${DCOMPOSE} up backend -d

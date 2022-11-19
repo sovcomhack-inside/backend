@@ -12,6 +12,7 @@ import (
 
 type AuthTokenWrapper struct {
 	UserID string `json:"user_id"`
+	Secret string `json:"secret"`
 	jwt.StandardClaims
 }
 

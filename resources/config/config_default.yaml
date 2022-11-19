@@ -7,6 +7,7 @@ service:
   jwt_ttl: 604800
   telegram_token: 5867329772:AAFTdQjk9oo0lvuEYEb9d-8rwUPCW14X3fo
   jwt_secret: secret
+  secret: secret
 
 postgres:
   connection_string: postgres://root:rootpassword@postgres:5432/inside
