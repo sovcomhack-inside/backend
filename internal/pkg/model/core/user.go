@@ -8,8 +8,8 @@ import (
 )
 
 type UserName struct {
-	FirstName string `json:"first_name" db:"first_name" validate:"required"`
-	LastName  string `json:"last_name" db:"last_name" validate:"required"`
+	FirstName string `json:"firstName" db:"first_name" validate:"required"`
+	LastName  string `json:"lastName" db:"last_name" validate:"required"`
 }
 
 func (un *UserName) Full() string {
@@ -17,14 +17,14 @@ func (un *UserName) Full() string {
 }
 
 type UserPassword struct {
-	Hash string `db:"password_hash"`
-	Salt string `db:"password_salt"`
+	Hash string `json:"-" db:"password_hash"`
+	Salt string `json:"-" db:"password_salt"`
 }
 
 type User struct {
-	ID    string     `db:"id"`
-	Email NullString `db:"email"`
-	Image NullString `db:"image"`
+	ID    string     `json:"id" db:"id"`
+	Email NullString `json:"email" db:"email"`
+	Image NullString `json:"image" db:"image"`
 	UserName
 	UserPassword
 }

@@ -1,9 +1,11 @@
 package core
 
-import "database/sql"
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
-type NullString = sql.NullString
+type NullString = pgtype.Text
 
 func NewNullString(s string) NullString {
-	return sql.NullString{String: s, Valid: len(s) > 0}
+	return pgtype.Text{String: s, Valid: len(s) > 0}
 }

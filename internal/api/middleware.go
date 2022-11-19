@@ -68,3 +68,10 @@ func (svc *APIService) OAuthTelegramMiddleware() fiber.Handler {
 		return nil
 	}
 }
+
+func (svc *APIService) AdminMiddleware() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		// TODO: xxx
+		return nil
+	}
+}
