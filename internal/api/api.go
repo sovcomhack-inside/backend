@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -24,25 +26,19 @@ func errorHandler(ctx *fiber.Ctx, err error) error {
 }
 
 type APIService struct {
-	log    *logger.Logger
 	router *fiber.App
 }
 
 func (svc *APIService) Serve(addr string) {
-	svc.log.Fatal(svc.router.Listen(addr))
+	logger.Fatal(context.Background(), svc.router.Listen(addr))
 }
 
 func (svc *APIService) Shutdown() error {
 	return svc.router.Shutdown()
 }
 
-func NewAPIService(
-	log *logger.Logger,
-	dbRegistry *store.Registry,
-	accountService service.AccountService,
-) (*APIService, error) {
+func NewAPIService(store store.Store) (*APIService, error) {
 	svc := &APIService{
-		log: log,
 		router: fiber.New(fiber.Config{
 			ErrorHandler: errorHandler,
 			JSONEncoder:  sonic.Marshal,
@@ -50,22 +46,21 @@ func NewAPIService(
 		}),
 	}
 
-	registry, err := controller.NewRegistry(log, dbRegistry)
-	if err != nil {
-		return nil, err
-	}
+	service := service.NewService(store)
+	controller := controller.NewController(service)
 
 	api := svc.router.Group("/api/v1", recover.New())
 
 	auth := api.Group("/auth")
-	auth.Post("/signup", registry.AuthController.SignupUser)
-	auth.Post("/login", registry.AuthController.LoginUser)
-	auth.Delete("/logout", registry.AuthController.LogoutUser)
-
-	accountController := controller.NewAccountController(log, accountService)
+	auth.Post("/signup", controller.SignupUser)
+	auth.Post("/login", controller.LoginUser)
+	auth.Delete("/logout", controller.LogoutUser)
 
 	account := api.Group("/accounts", svc.AuthMiddleware())
-	account.Post("/", accountController.CreateAccount)
+	account.Post("/", controller.CreateAccount)
+
+	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
+	oauth.Get("/telegram", controller.OAuthTelegram)
 
 	return svc, nil
 }

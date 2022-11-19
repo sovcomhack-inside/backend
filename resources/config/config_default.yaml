@@ -5,6 +5,7 @@ service:
     address: 0.0.0.0
     port: 8080
   jwt_ttl: 604800
+  telegram_token: 5867329772:AAFTdQjk9oo0lvuEYEb9d-8rwUPCW14X3fo
 
 postgres:
   connection_string: postgres://root:rootpassword@postgres:5432/inside

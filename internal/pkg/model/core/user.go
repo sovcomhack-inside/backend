@@ -8,12 +8,12 @@ import (
 )
 
 type UserName struct {
-	First string `json:"first_name" db:"first_name" validate:"required"`
-	Last  string `json:"last_name" db:"last_name" validate:"required"`
+	FirstName string `json:"first_name" db:"first_name" validate:"required"`
+	LastName  string `json:"last_name" db:"last_name" validate:"required"`
 }
 
 func (un *UserName) Full() string {
-	return fmt.Sprintf("%s %s", un.First, un.Last)
+	return fmt.Sprintf("%s %s", un.FirstName, un.LastName)
 }
 
 type UserPassword struct {
@@ -22,11 +22,20 @@ type UserPassword struct {
 }
 
 type User struct {
-	ID string `db:"id"`
+	ID    string     `db:"id"`
+	Email NullString `db:"email"`
+	Image NullString `db:"image"`
 	UserName
 	UserPassword
-	Email string `db:"email"`
 }
+
+type UserStatus string
+
+const (
+	UserStatusPendindApprove UserStatus = "pending_approve"
+	UserStatusApproved       UserStatus = "approved"
+	UserStatusBanned         UserStatus = "banned"
+)
 
 // Init generates salt and hash with given password and fills corresponding fields.
 func (up *UserPassword) Init(password string) error {
