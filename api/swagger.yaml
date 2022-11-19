@@ -258,7 +258,7 @@ components:
           example: password
 
     SignupUserResponse:
-      $ref: "#/components/schemas/BasicResponse"
+      $ref: "#/components/schemas/User"
 
     LoginUserRequest:
       type: object
@@ -271,7 +271,7 @@ components:
           example: password
 
     LoginUserResponse:
-      $ref: "#/components/schemas/BasicResponse"
+      $ref: "#/components/schemas/User"
 
     CreateAccountRequest:
       type: object
@@ -390,6 +390,20 @@ components:
         status:
           type: string
           enum: [pending_approve, approved, banned]
+    
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        image:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
 
     BasicResponse:
       type: object
