@@ -36,7 +36,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	svc.service = service.NewService(store)
 
 	api := svc.router.Group("/api/v1")
-	controller := controller.NewController(svc.service)
+	controller := controller.NewController(store, svc.service)
 
 	auth := api.Group("/auth")
 	auth.POST("/signup", controller.SignupUser)
@@ -57,7 +57,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 
 	admin := api.Group("/admin")
 	admin.POST("/login", controller.LoginAdmin)
-	admin.PUT("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
+	admin.POST("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
+	admin.GET("/list_users", controller.ListUsers, svc.AdminMiddleware)
 
 	return svc, nil
 }

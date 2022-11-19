@@ -239,6 +239,28 @@ paths:
         "200":
           description: Success
 
+  /admin/list_users:
+    put:
+      tags:
+        - Admin
+      summary: List Users
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListUsersRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListUsersResponse"
 
 components:
   parameters:
@@ -492,6 +514,21 @@ components:
         status:
           type: string
           enum: [pending_approve, approved, banned]
+    
+    ListUsersRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending_approve, approved, banned]
+    
+    ListUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
     
     User:
       type: object

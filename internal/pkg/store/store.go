@@ -34,4 +34,7 @@ type UserStore interface {
 	// DeleteUser(ctx context.Context, user *core.User) error
 	UpdateUserStatus(ctx context.Context, id int64, status core.UserStatus) error
 	GetUserStatus(ctx context.Context, id int64) (string, error)
+	ListUsersInStatus(ctx context.Context, status core.UserStatus) ([]core.User, error)
+	LinkTelegramID(ctx context.Context, id, telegramID int64) error
+	GetTelegramID(ctx context.Context, id int64) (int64, error)
 }

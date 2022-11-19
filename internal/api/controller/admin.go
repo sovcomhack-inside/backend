@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
+	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 	"github.com/spf13/viper"
@@ -27,7 +28,7 @@ func (c *Controller) LoginAdmin(ctx echo.Context) error {
 
 	ctx.SetCookie(utils.CreateHttpOnlyCookie(constants.CookieKeySecretToken, authToken, viper.GetInt64(constants.ViperJWTTTLKey)))
 
-	return ctx.NoContent(http.StatusOK)
+	return ctx.JSON(http.StatusOK, &dto.BasicResponse{})
 }
 
 func (c *Controller) UpdateUserStatus(ctx echo.Context) error {
@@ -42,4 +43,18 @@ func (c *Controller) UpdateUserStatus(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, response)
+}
+
+func (c *Controller) ListUsers(ctx echo.Context) error {
+	request := &dto.ListUsersRequest{}
+	if err := ctx.Bind(request); err != nil {
+		return err
+	}
+
+	users, err := c.store.ListUsersInStatus(ctx.Request().Context(), core.UserStatus(request.Status))
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, &dto.ListUsersResponse{Users: users})
 }

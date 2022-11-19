@@ -57,3 +57,32 @@ func (s *store) GetUserStatus(ctx context.Context, id int64) (string, error) {
 	}
 	return status, nil
 }
+
+func (s *store) ListUsersInStatus(ctx context.Context, status core.UserStatus) ([]core.User, error) {
+	users := []core.User{}
+	const query = `
+	SELECT id, email, image, first_name, last_name FROM users WHERE id IN (
+		SELECT id FROM users_statuses WHERE status = $1
+	)
+	`
+	if err := s.pool.Select(ctx, &users, query, status); err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (s *store) LinkTelegramID(ctx context.Context, id, telegramID int64) error {
+	const query = `
+	INSERT INTO users_telegram_id COLUMNS (id, user_id) VALUES ($1, $2)
+	`
+	if _, err := s.pool.Exec(ctx, query, id, telegramID); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *store) GetTelegramID(ctx context.Context, id int64) (telegramID int64, err error) {
+	const query = "SELECT telegram_id FROM users_telegram_id WHERE id = $1"
+	err = s.pool.Get(ctx, &telegramID, query, id)
+	return
+}
