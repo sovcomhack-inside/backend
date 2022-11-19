@@ -56,7 +56,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 
-	if err := svc.Shutdown(); err != nil {
+	if err := svc.Shutdown(context.TODO()); err != nil {
 		log.Fatal(err)
 	}
 }

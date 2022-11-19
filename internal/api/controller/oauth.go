@@ -3,20 +3,20 @@ package controller
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 	"github.com/spf13/viper"
 )
 
-func (c *Controller) OAuthTelegram(ctx *fiber.Ctx) error {
+func (c *Controller) OAuthTelegram(ctx echo.Context) error {
 	request := &dto.OAuthTelegramRequest{}
-	if err := Bind(ctx, request, ctx.QueryParser); err != nil {
+	if err := ctx.Bind(request); err != nil {
 		return err
 	}
 
-	err := c.service.OAuthTelegram(ctx.Context(), request)
+	err := c.service.OAuthTelegram(ctx.Request().Context(), request)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (c *Controller) OAuthTelegram(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	ctx.Cookie(utils.CreateHttpOnlyCookie(constants.CookieKeyAuthToken, authToken, viper.GetInt64(constants.ViperJWTTTLKey)))
+	ctx.SetCookie(utils.CreateHttpOnlyCookie(constants.CookieKeyAuthToken, authToken, viper.GetInt64(constants.ViperJWTTTLKey)))
 
-	return ctx.Redirect("/", http.StatusPermanentRedirect)
+	return ctx.Redirect(http.StatusPermanentRedirect, "/")
 }

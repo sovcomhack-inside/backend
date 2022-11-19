@@ -7,71 +7,75 @@ import (
 	"io"
 	"sort"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 	"github.com/spf13/viper"
 )
 
-func (svc *APIService) AuthMiddleware() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		cookie := ctx.Cookies(constants.CookieKeyAuthToken)
-		if len(cookie) == 0 {
-			return constants.ErrMissingAuthCookie
-		}
-
-		token, err := utils.ParseAuthToken(cookie)
-		if err != nil {
-			return err
-		}
-
-		utils.SetValue(ctx, constants.CtxKeyUserID{}, token.UserID)
-
-		return ctx.Next()
-	}
-}
-
-func (svc *APIService) OAuthTelegramMiddleware() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		queryParams := ctx.Request().URI().QueryArgs()
-		kvs := []string{}
-		hash := ""
-		queryParams.VisitAll(func(k []byte, v []byte) {
-			if string(k) == "hash" {
-				hash = string(v)
-			} else {
-				kvs = append(kvs, string(k)+"="+string(v))
+func (svc *APIService) AuthMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			cookie, err := ctx.Cookie(constants.CookieKeyAuthToken)
+			if err != nil {
+				return constants.ErrMissingAuthCookie
 			}
-		})
-		sort.Strings(kvs)
 
-		var dataCheckString = ""
-		for _, s := range kvs {
-			if dataCheckString != "" {
-				dataCheckString += "\n"
+			token, err := utils.ParseAuthToken(cookie.Value)
+			if err != nil {
+				return err
 			}
-			dataCheckString += s
+
+			ctx.Set(constants.CtxKeyUserID, token.UserID)
+
+			return next(ctx)
 		}
-
-		sha256hash := sha256.New()
-
-		telegramToken := viper.GetString("service.telegram_token")
-		_, _ = io.WriteString(sha256hash, telegramToken)
-
-		hmachash := hmac.New(sha256.New, sha256hash.Sum(nil))
-		_, _ = io.WriteString(hmachash, dataCheckString)
-
-		if hash != hex.EncodeToString(hmachash.Sum(nil)) {
-			return constants.ErrHashInvalid
-		}
-
-		return ctx.Next()
 	}
 }
 
-func (svc *APIService) AdminMiddleware() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		// TODO: xxx
-		return nil
+func (svc *APIService) OAuthTelegramMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			queryParams := ctx.Request().URL.Query()
+			kvs := []string{}
+			hash := ""
+			for k, v := range queryParams {
+				if k == "hash" {
+					hash = v[0]
+					continue
+				}
+				kvs = append(kvs, k+"="+v[0])
+			}
+			sort.Strings(kvs)
+
+			var dataCheckString = ""
+			for _, s := range kvs {
+				if dataCheckString != "" {
+					dataCheckString += "\n"
+				}
+				dataCheckString += s
+			}
+
+			sha256hash := sha256.New()
+
+			telegramToken := viper.GetString("service.telegram_token")
+			_, _ = io.WriteString(sha256hash, telegramToken)
+
+			hmachash := hmac.New(sha256.New, sha256hash.Sum(nil))
+			_, _ = io.WriteString(hmachash, dataCheckString)
+
+			if hash != hex.EncodeToString(hmachash.Sum(nil)) {
+				return constants.ErrHashInvalid
+			}
+
+			return next(ctx)
+		}
 	}
 }
+
+// func (svc *APIService) AdminMiddleware() echo.MiddlewareFunc {
+// 	return func(ctx echo.Context) error {
+// 		// TODO: xxx
+// 		return nil
+// 	}
+// }

@@ -1,20 +1,22 @@
 package controller
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 )
 
-func (c *Controller) UpdateUserStatus(ctx *fiber.Ctx) error {
+func (c *Controller) UpdateUserStatus(ctx echo.Context) error {
 	request := &dto.UpdateUserStatusRequest{}
-	if err := Bind(ctx, request, ctx.BodyParser); err != nil {
+	if err := ctx.Bind(request); err != nil {
 		return err
 	}
 
-	response, err := c.service.UpdateUserStatus(ctx.Context(), request)
+	response, err := c.service.UpdateUserStatus(ctx.Request().Context(), request)
 	if err != nil {
 		return err
 	}
 
-	return ctx.JSON(response)
+	return ctx.JSON(http.StatusOK, response)
 }

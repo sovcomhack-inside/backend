@@ -3,69 +3,52 @@ package api
 import (
 	"context"
 
-	"github.com/bytedance/sonic"
-	"github.com/gofiber/fiber/v2"
-	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/api/controller"
-	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/service"
 	"github.com/sovcomhack-inside/internal/pkg/store"
 )
 
-func errorHandler(ctx *fiber.Ctx, err error) error {
-	code := fiber.StatusInternalServerError
-	if e, ok := err.(*fiber.Error); ok {
-		code = e.Code
-	} else if e, ok := err.(*constants.CodedError); ok {
-		code = e.Code()
-	}
-
-	ctx.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
-	return ctx.Status(code).SendString(err.Error())
-}
-
 type APIService struct {
-	router *fiber.App
+	router *echo.Echo
 }
 
 func (svc *APIService) Serve(addr string) {
-	logger.Fatal(context.Background(), svc.router.Listen(addr))
+	logger.Fatal(context.Background(), svc.router.Start(addr))
 }
 
-func (svc *APIService) Shutdown() error {
-	return svc.router.Shutdown()
+func (svc *APIService) Shutdown(ctx context.Context) error {
+	return svc.router.Shutdown(ctx)
 }
 
 func NewAPIService(store store.Store) (*APIService, error) {
-	svc := &APIService{
-		router: fiber.New(fiber.Config{
-			ErrorHandler: errorHandler,
-			JSONEncoder:  sonic.Marshal,
-			JSONDecoder:  sonic.Unmarshal,
-		}),
-	}
+	svc := &APIService{router: echo.New()}
+
+	svc.router.Validator = NewValidator()
+	svc.router.Binder = NewBinder()
 
 	service := service.NewService(store)
 	controller := controller.NewController(service)
 
-	api := svc.router.Group("/api/v1", recover.New(), fiberlogger.New())
+	// svc.router.Use(svc.XRequestIDMiddleware(), svc.LoggingMiddleware(), svc.AccessLogMiddleware())
+
+	api := svc.router.Group("/api/v1")
 
 	auth := api.Group("/auth")
-	auth.Post("/signup", controller.SignupUser)
-	auth.Post("/login", controller.LoginUser)
-	auth.Delete("/logout", controller.LogoutUser)
+	auth.POST("/signup", controller.SignupUser)
+	auth.POST("/login", controller.LoginUser)
+	auth.DELETE("/logout", controller.LogoutUser)
 
 	account := api.Group("/accounts")
 
-	account.Post("/", controller.CreateAccount)
+	account.POST("/", controller.CreateAccount)
 
-	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
-	oauth.Get("/telegram", controller.OAuthTelegram)
+	oauth := api.Group("/oauth")
+	oauth.GET("/telegram", controller.OAuthTelegram)
 
-	admin := api.Group("/admin").Use(svc.AuthMiddleware())
-	admin.Put("/update_user_status", controller.UpdateUserStatus)
+	admin := api.Group("/admin")
+	admin.PUT("/update_user_status", controller.UpdateUserStatus)
 
 	return svc, nil
 }
