@@ -63,8 +63,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
 	oauth.Get("/telegram", controller.OAuthTelegram)
 
-	// admin := api.Group("/admin")
-	// admin.Put("/update_user_status", controller.UpdateUserStatus)
+	admin := api.Group("/admin").Use(svc.AuthMiddleware())
+	admin.Put("/update_user_status", controller.UpdateUserStatus)
 
 	return svc, nil
 }

@@ -29,6 +29,7 @@ func (c *Controller) LoginUser(ctx *fiber.Ctx) error {
 	if err := Bind(ctx, request, ctx.BodyParser); err != nil {
 		return err
 	}
+
 	response, err := c.service.LoginUser(ctx.Context(), request)
 	if err != nil {
 		return err

@@ -25,7 +25,7 @@ func (svc *APIService) AuthMiddleware() fiber.Handler {
 			return err
 		}
 
-		ctx.Request().Header.Set(constants.HeaderKeyUserID, string(tw.UserID))
+		ctx.Context().SetUserValue(constants.CtxKeyUserID, string(tw.UserID))
 
 		return nil
 	}
