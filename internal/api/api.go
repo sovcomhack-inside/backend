@@ -37,7 +37,7 @@ func (svc *APIService) Shutdown() error {
 	return svc.router.Shutdown()
 }
 
-func NewAPIService(dbRegistry store.Store) (*APIService, error) {
+func NewAPIService(store store.Store) (*APIService, error) {
 	svc := &APIService{
 		router: fiber.New(fiber.Config{
 			ErrorHandler: errorHandler,
@@ -46,15 +46,19 @@ func NewAPIService(dbRegistry store.Store) (*APIService, error) {
 		}),
 	}
 
-	service := service.NewService(dbRegistry)
+	service := service.NewService(store)
 	controller := controller.NewController(service)
 
-	api := svc.router.Group("/api", recover.New())
+	api := svc.router.Group("/api/v1", recover.New())
 
 	auth := api.Group("/auth")
 	auth.Post("/signup", controller.SignupUser)
 	auth.Post("/login", controller.LoginUser)
 	auth.Delete("/logout", controller.LogoutUser)
+
+	account := api.Group("/accounts")
+
+	account.Post("/", controller.CreateAccount)
 
 	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
 	oauth.Get("/telegram", controller.OAuthTelegram)

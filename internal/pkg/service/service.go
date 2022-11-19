@@ -11,6 +11,7 @@ type Service interface {
 	UserService
 	AuthService
 	OAuthService
+	AccountService
 }
 
 type service struct {
