@@ -68,15 +68,15 @@ func (svc *service) RefillAccount(ctx context.Context, req *dto.RefillAccountReq
 
 	operations := []*core.Operation{
 		{
-			Purpose:                refillPurpose,
-			OperationType:          core.OperationTypeRefill,
-			AccountNumber:          &req.AccountNumber,
-			AccountAmountCents:     &req.DebitAmountCents,
-			AccountAmountCurrency:  &account.Currency,
-			OriginalAccountNumber:  nil,
-			OriginalAmountCents:    nil,
-			OriginalAmountCurrency: nil,
-			ExchangeRateRatio:      1,
+			Purpose:                  refillPurpose,
+			OperationType:            core.OperationTypeRefill,
+			ReceiverAccountNumber:    &req.AccountNumber,
+			ReceiverAmountCents:      &req.DebitAmountCents,
+			ReceiverAccountCurrency:  &account.Currency,
+			SenderAccountNumber:      nil,
+			SenderAccountAmountCents: nil,
+			SenderAccountCurrency:    nil,
+			ExchangeRateRatio:        1,
 		},
 	}
 	err = svc.store.InsertOperations(ctx, operations)

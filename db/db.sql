@@ -40,15 +40,15 @@ create type operation_type as enum (
     );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS operations (
-   id uuid not null primary key default gen_random_uuid(),
-   purpose text,
-   operation_type operation_type not null,
-   time timestamptz default now(),
-   account_number uuid,
-   account_amount_cents bigint,
-   account_amount_currency varchar(3),
-   original_account_number uuid,
-   original_amount_cents bigint,
-   original_amount_currency varchar(3),
-   exchange_rate_ratio float
+   id uuid                          not null primary key default gen_random_uuid(),
+   purpose                          text,
+   operation_type                   operation_type not null,
+   time timestamptz                 default now(),
+   receiver_account_number          uuid,
+   receiver_account_amount_cents    bigint,
+   receiver_account_currency        varchar(3),
+   sender_account_number            uuid,
+   sender_account_amount_cents      bigint,
+   sender_account_currency          varchar(3),
+   currencies_exchange_rate_ratio   float
 );
