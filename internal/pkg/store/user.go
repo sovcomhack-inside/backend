@@ -63,12 +63,14 @@ func (s *store) GetUserStatus(ctx context.Context, id int64) (string, error) {
 func (s *store) ListUsers(ctx context.Context, request *dto.ListUsersRequest) ([]core.User, error) {
 	users := []core.User{}
 	query := builder().Select("id", "email", "image", "first_name", "last_name").From("users")
-	query = query.Where(fmt.Sprintf("id IN (SELECT id FROM users_statuses WHERE status = '%v')", request.Status))
+
+	if len(request.Status) > 0 {
+		query = query.Where(fmt.Sprintf("id IN (SELECT id FROM users_statuses WHERE status = '%v')", request.Status))
+	}
+
 	if len(request.EmailIn) > 0 {
 		query = query.Where(squirrel.Eq{"email": request.EmailIn})
 	}
-
-	fmt.Println(query.ToSql())
 
 	if err := s.pool.Selectx(ctx, &users, query); err != nil {
 		return nil, err

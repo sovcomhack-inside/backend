@@ -221,7 +221,7 @@ paths:
           description: Success
 
   /admin/update_user_status:
-    put:
+    post:
       tags:
         - Admin
       summary: Update User Status
