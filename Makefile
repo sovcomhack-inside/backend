@@ -17,6 +17,11 @@ all: down build up
 
 c: down clean build up
 
+rebuild-backend:
+	docker-compose -f ${DCOMPOSE} stop backend
+	${DOCKER_BUILD_KIT} docker-compose build ${DCOMPOSE_BUILD_ARGS} backend
+	docker-compose -f ${DCOMPOSE} up backend -d
+
 down:
 	docker-compose -f ${DCOMPOSE} down --remove-orphans
 
@@ -26,7 +31,7 @@ build:
 	${DOCKER_BUILD_KIT} docker-compose build ${DCOMPOSE_BUILD_ARGS}
 
 up:
-	docker-compose -f ${DCOMPOSE} up --remove-orphans
+	docker-compose -f ${DCOMPOSE} up --remove-orphans -d
 
 # Vendoring is useful for local debugging since you don't have to
 # reinstall all packages again and again in docker
