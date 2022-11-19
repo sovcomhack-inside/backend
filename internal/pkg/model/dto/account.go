@@ -1,13 +1,44 @@
 package dto
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"github.com/sovcomhack-inside/internal/pkg/model/core"
+)
 
 type CreateAccountRequest struct {
+	UserID   int64  `json:"user_id"`
 	Currency string `json:"currency"`
 }
 
 type CreateAccountResponse struct {
-	AccountNumber string    `json:"account_number"`
-	Currency      string    `json:"currency"`
-	CreatedAt     time.Time `json:"created_at"`
+	Account core.Account `json:"account"`
+}
+
+type ListUserAccountsRequest struct {
+	UserID int64 `json:"user_id"`
+}
+
+type ListUserAccountResponse struct {
+	Accounts []core.Account `json:"accounts"`
+}
+
+type RefillAccountRequest struct {
+	AccountNumber    uuid.UUID `json:"account_number"`
+	DebitAmountCents int64     `json:"debit_amount_cents"`
+}
+
+type RefillAccountResponse ChangeAccountBalanceResponse
+
+type WithdrawFromAccountRequest struct {
+	AccountNumber     uuid.UUID `json:"account_number"`
+	CreditAmountCents int64     `json:"credit_amount_cents"`
+}
+
+type WithdrawFromAccountResponse ChangeAccountBalanceResponse
+
+type ChangeAccountBalanceResponse struct {
+	AccountNumber uuid.UUID `json:"account_number"`
+	OldBalance    int64     `json:"old_balance"`
+	NewBalance    int64     `json:"new_balance"`
+	Purpose       string    `json:"purpose"`
 }

@@ -42,6 +42,10 @@ var (
 	ErrValidateRequest = &CodedError{errors.New("failed to validate request"), http.StatusBadRequest}
 	ErrDBNotFound      = &CodedError{errors.New("not found in the database"), http.StatusBadRequest}
 	ErrAlreadyExists   = &CodedError{errors.New("already exists"), http.StatusBadRequest}
+	ErrNegativeDebit   = &CodedError{errors.New("non-positive debit amount for refill"), http.StatusBadRequest}
+	ErrNegativeCredit  = &CodedError{errors.New("non-positive credit amount for withdraw"), http.StatusBadRequest}
+	ErrAccountNotFound = &CodedError{errors.New("account not found with such a number"), http.StatusBadRequest}
+	ErrNotEnoughMoney  = &CodedError{errors.New("not enough money"), http.StatusBadRequest}
 
 	// Internal
 	ErrSignToken      = &CodedError{errors.New("failed to sign token"), http.StatusInternalServerError}

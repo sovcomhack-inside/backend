@@ -72,7 +72,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BasicResponse"
 
-  /accounts:
+  /accounts/create:
     post:
       tags:
         - Accounts
@@ -94,6 +94,72 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreateAccountResponse"
+  /accounts/list:
+    get:
+      tags:
+        - Accounts
+      summary: List user accounts
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListUserAccountsRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListUserAccountsResponse"
+  /accounts/refill:
+    post:
+      tags:
+        - Accounts
+      summary: Deposit money to account
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefillAccountRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefillAccountResponse"
+  /accounts/withdraw:
+    post:
+      tags:
+        - Accounts
+      summary: Withdraw money from account
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawFromAccountRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawFromAccountResponse"
 
   /admin/login:
     post:
@@ -113,7 +179,7 @@ paths:
           content: { }
         "200":
           description: Success
-          
+
   /admin/update_user_status:
     put:
       tags:
@@ -210,9 +276,6 @@ components:
     CreateAccountRequest:
       type: object
       properties:
-        user_id:
-          type: integer
-          example: 1
         currency:
           type: string
           example: RUB
@@ -220,15 +283,96 @@ components:
     CreateAccountResponse:
       type: object
       properties:
+        account:
+          $ref: '#/components/schemas/AccountItem'
+
+    ListUserAccountsRequest:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+
+    ListUserAccountsResponse:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountItem'
+
+    RefillAccountRequest:
+      type: object
+      properties:
+        account_number:
+          type: string
+          example: a515a4bc-6805-11ed-9022-0242ac120002
+        debit_amount_cents:
+          type: integer
+          example: 123
+
+    RefillAccountResponse:
+      type: object
+      properties:
         account_number:
           type: string
           example: fb33fd0e-6782-11ed-9022-0242ac120002
+        old_balance:
+          type: integer
+          example: 1000
+        new_balance:
+          type: integer
+          example: 1123
+        purpose:
+          type: string
+          example: Пополнение счета с банковской карты
+
+    WithdrawFromAccountRequest:
+      type: object
+      properties:
+        account_number:
+          type: string
+          example: a515a4bc-6805-11ed-9022-0242ac120002
+        credit_amount_cents:
+          type: integer
+          example: 123
+
+    WithdrawFromAccountResponse:
+      type: object
+      properties:
+        account_number:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
+        old_balance:
+          type: integer
+          example: 1000
+        new_balance:
+          type: integer
+          example: 877
+        purpose:
+          type: string
+          example: Вывод со счета на банковскую карту
+
+
+    AccountItem:
+      type: object
+      properties:
+        number:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
+        user_id:
+          type: integer
+          example: 1
         currency:
           type: string
           example: RUB
+        cents:
+          type: integer
+          example: 10000
         created_at:
           type: string
-          example: '2006-1-2'
+          example: 2006-1-2
+
 
     AdminLoginRequest:
       type: object
@@ -236,7 +380,7 @@ components:
         secret:
           type: string
           example: secret
-          
+
     AdminUpdateUserStatusRequest:
       type: object
       properties:

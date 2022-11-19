@@ -10,7 +10,8 @@ import (
 
 const (
 	tableUsers         = "users"
-	tableAccounts = "accounts"
+	tableAccounts      = "accounts"
+	tableOperations    = "operations"
 	tableUsersStatuses = "users_statuses"
 )
 

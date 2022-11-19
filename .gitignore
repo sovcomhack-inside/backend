@@ -15,5 +15,6 @@
 .idea/
 vendor/
 postgres-data/
+*.DS_Store
 
 resources/config/config.yaml
