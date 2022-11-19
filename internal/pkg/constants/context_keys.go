@@ -1,7 +1,7 @@
 package constants
 
 // CtxKeyUserID maps string.
-var CtxKeyUserID = "User-Id"
+type CtxKeyUserID struct{}
 
 // CtxKeyXRequestID maps string.
-var CtxKeyXRequestID = struct{}{}
+type CtxKeyXRequestID struct{}

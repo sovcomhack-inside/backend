@@ -20,14 +20,14 @@ func (svc *APIService) AuthMiddleware() fiber.Handler {
 			return constants.ErrMissingAuthCookie
 		}
 
-		tw, err := utils.ParseAuthToken(cookie)
+		token, err := utils.ParseAuthToken(cookie)
 		if err != nil {
 			return err
 		}
 
-		ctx.Context().SetUserValue(constants.CtxKeyUserID, string(tw.UserID))
+		utils.SetValue(ctx, constants.CtxKeyUserID{}, token.UserID)
 
-		return nil
+		return ctx.Next()
 	}
 }
 
@@ -65,7 +65,7 @@ func (svc *APIService) OAuthTelegramMiddleware() fiber.Handler {
 			return constants.ErrHashInvalid
 		}
 
-		return nil
+		return ctx.Next()
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
+	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/sovcomhack-inside/internal/api/controller"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
@@ -49,7 +50,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	service := service.NewService(store)
 	controller := controller.NewController(service)
 
-	api := svc.router.Group("/api/v1", recover.New())
+	api := svc.router.Group("/api/v1", recover.New(), fiberlogger.New())
 
 	auth := api.Group("/auth")
 	auth.Post("/signup", controller.SignupUser)
