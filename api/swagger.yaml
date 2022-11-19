@@ -188,6 +188,9 @@ components:
         currency:
           type: string
           example: RUB
+        created_at:
+          type: string
+          example: '2006-1-2'
 
     BasicResponse:
       type: object

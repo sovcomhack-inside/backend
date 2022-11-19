@@ -23,8 +23,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users_statuses (
 
 CREATE UNLOGGED TABLE IF NOT EXISTS accounts (
      number uuid,
-     user_id bigint references users,
-     created_at timestamptz,
+     user_id bigint,
+     created_at timestamptz default now(),
      currency varchar(3),
      cents bigint
 );
@@ -45,7 +45,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS operations (
    id uuid not null primary key,
    operation_type operation_type not null,
    purpose text,
-   time timestamptz,
+   time timestamptz default now(),
    account_number varchar(20),
    account_amount_cents bigint,
    account_amount_currency varchar(3)

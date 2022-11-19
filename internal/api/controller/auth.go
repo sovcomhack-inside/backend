@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
-	"github.com/sovcomhack-inside/internal/pkg/service"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 	"github.com/spf13/viper"
 )
@@ -30,7 +29,6 @@ func (c *Controller) LoginUser(ctx *fiber.Ctx) error {
 	if err := Bind(ctx, request, ctx.BodyParser); err != nil {
 		return err
 	}
-
 	response, err := c.service.LoginUser(ctx.Context(), request)
 	if err != nil {
 		return err
@@ -42,10 +40,6 @@ func (c *Controller) LoginUser(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) LogoutUser(ctx *fiber.Ctx) error {
-	ctx.ClearCookie(constants.CookieKeyAuthToken)
+	ctx.Cookie(utils.CreateHttpOnlyCookie(constants.CookieKeyAuthToken, "", 0))
 	return ctx.JSON(&dto.BasicResponse{})
-}
-
-func NewAuthController(service service.Service) *Controller {
-	return &Controller{service: service}
 }

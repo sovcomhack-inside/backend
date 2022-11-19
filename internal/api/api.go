@@ -56,7 +56,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	auth.Post("/login", controller.LoginUser)
 	auth.Delete("/logout", controller.LogoutUser)
 
-	account := api.Group("/accounts", svc.AuthMiddleware())
+	account := api.Group("/accounts")
+
 	account.Post("/", controller.CreateAccount)
 
 	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())

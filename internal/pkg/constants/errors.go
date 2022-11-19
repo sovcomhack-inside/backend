@@ -50,4 +50,5 @@ var (
 
 	// Conflict
 	ErrEmailAlreadyTaken = &CodedError{errors.New("email is taken already by other user"), http.StatusConflict}
+	AccountAlreadyExists = &CodedError{errors.New("account with this currency is already exists for this user"), http.StatusConflict}
 )
