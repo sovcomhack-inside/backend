@@ -4,6 +4,8 @@ CONFIG_PATH:=resources/config/config.yaml
 # path to docker compose file
 DCOMPOSE:=docker-compose.yaml
 
+NETWORK:=api
+
 # path to external config which will copied to CONFIG_PATH
 CONFIG_SOURCE_PATH=resources/config/config_default.yaml
 
@@ -19,6 +21,7 @@ down:
 	docker-compose -f ${DCOMPOSE} down --remove-orphans
 
 build:
+	docker network inspect ${NETWORK} >/dev/null 2>&1 || docker network create --driver bridge ${NETWORK}
 	cp ${CONFIG_SOURCE_PATH} ${CONFIG_PATH}
 	${DOCKER_BUILD_KIT} docker-compose build ${DCOMPOSE_BUILD_ARGS}
 
