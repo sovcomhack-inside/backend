@@ -16,5 +16,6 @@
 vendor/
 postgres-data/
 *.DS_Store
+main
 
 resources/config/config.yaml

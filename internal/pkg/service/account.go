@@ -6,8 +6,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/shopspring/decimal"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
+	"github.com/sovcomhack-inside/internal/pkg/store"
 )
 
 const (
@@ -20,6 +22,7 @@ type AccountService interface {
 	ListUserAccounts(context.Context, *dto.ListUserAccountsRequest) (*dto.ListUserAccountResponse, error)
 	RefillAccount(context.Context, *dto.RefillAccountRequest) (*dto.RefillAccountResponse, error)
 	WithdrawFromAccount(context.Context, *dto.WithdrawFromAccountRequest) (*dto.WithdrawFromAccountResponse, error)
+	MakeTransfer(ctx context.Context, reqDTO *dto.TransferRequestDTO, exchangeRateRatio float64) (*dto.MakePurchaseResponse, error)
 }
 
 func (svc *service) CreateAccount(ctx context.Context, req *dto.CreateAccountRequest) (*dto.CreateAccountResponse, error) {
@@ -27,7 +30,7 @@ func (svc *service) CreateAccount(ctx context.Context, req *dto.CreateAccountReq
 		Number:   uuid.New(),
 		UserID:   req.UserID,
 		Currency: req.Currency,
-		Balance:  0,
+		Balance:  decimal.NewFromInt(0),
 	}
 
 	err := svc.store.CreateAccount(ctx, account)
@@ -40,7 +43,7 @@ func (svc *service) CreateAccount(ctx context.Context, req *dto.CreateAccountReq
 }
 
 func (svc *service) ListUserAccounts(ctx context.Context, req *dto.ListUserAccountsRequest) (*dto.ListUserAccountResponse, error) {
-	accounts, err := svc.store.SearchUserAccounts(ctx, req.UserID)
+	accounts, err := svc.store.SearchUserAccounts(ctx, store.SearchAccountsOpts{UserID: req.UserID})
 	if err != nil {
 		return nil, fmt.Errorf("accounts store error: %w", err)
 	}
@@ -55,15 +58,15 @@ func (svc *service) RefillAccount(ctx context.Context, req *dto.RefillAccountReq
 
 	operations := []*core.Operation{
 		{
-			Purpose:                  refillPurpose,
-			OperationType:            core.OperationTypeRefill,
-			ReceiverAccountNumber:    &req.AccountNumber,
-			ReceiverAmountCents:      &req.DebitAmountCents,
-			ReceiverAccountCurrency:  &account.Currency,
-			SenderAccountNumber:      nil,
-			SenderAccountAmountCents: nil,
-			SenderAccountCurrency:    nil,
-			ExchangeRateRatio:        1,
+			Purpose:           refillPurpose,
+			OperationType:     core.OperationTypeRefill,
+			AccountNumberTo:   &req.AccountNumber,
+			AmountCentsTo:     &req.DebitAmountCents,
+			CurrencyTo:        &account.Currency,
+			AccountNumberFrom: nil,
+			AmountCentsFrom:   nil,
+			CurrencyFrom:      nil,
+			ExchangeRateRatio: 1,
 		},
 	}
 	err = svc.store.InsertOperations(ctx, operations)
@@ -72,29 +75,29 @@ func (svc *service) RefillAccount(ctx context.Context, req *dto.RefillAccountReq
 	}
 	return &dto.RefillAccountResponse{
 		AccountNumber: account.Number,
-		OldBalance:    account.Balance - req.DebitAmountCents,
+		OldBalance:    account.Balance.Sub(req.DebitAmountCents),
 		NewBalance:    account.Balance,
 		Purpose:       refillPurpose,
 	}, nil
 }
 
 func (svc *service) WithdrawFromAccount(ctx context.Context, req *dto.WithdrawFromAccountRequest) (*dto.WithdrawFromAccountResponse, error) {
-	account, err := svc.store.UpdateAccountBalance(ctx, req.AccountNumber, -req.CreditAmountCents)
+	account, err := svc.store.UpdateAccountBalance(ctx, req.AccountNumber, req.CreditAmountCents.Neg())
 	if err != nil {
 		return nil, fmt.Errorf("accounts store error: %w", err)
 	}
 
 	operations := []*core.Operation{
 		{
-			Purpose:                  withdrawalPurpose,
-			OperationType:            core.OperationTypeWithdrawal,
-			ReceiverAccountNumber:    nil,
-			ReceiverAmountCents:      nil,
-			ReceiverAccountCurrency:  nil,
-			SenderAccountNumber:      &req.AccountNumber,
-			SenderAccountAmountCents: lo.ToPtr(-req.CreditAmountCents),
-			SenderAccountCurrency:    &account.Currency,
-			ExchangeRateRatio:        1,
+			Purpose:           withdrawalPurpose,
+			OperationType:     core.OperationTypeWithdrawal,
+			AccountNumberTo:   nil,
+			AmountCentsTo:     nil,
+			CurrencyTo:        nil,
+			AccountNumberFrom: &req.AccountNumber,
+			AmountCentsFrom:   lo.ToPtr(req.CreditAmountCents.Neg()),
+			CurrencyFrom:      &account.Currency,
+			ExchangeRateRatio: 1,
 		},
 	}
 	err = svc.store.InsertOperations(ctx, operations)
@@ -103,8 +106,56 @@ func (svc *service) WithdrawFromAccount(ctx context.Context, req *dto.WithdrawFr
 	}
 	return &dto.WithdrawFromAccountResponse{
 		AccountNumber: account.Number,
-		OldBalance:    account.Balance + req.CreditAmountCents,
+		OldBalance:    account.Balance.Add(req.CreditAmountCents),
 		NewBalance:    account.Balance,
 		Purpose:       withdrawalPurpose,
+	}, nil
+}
+
+// MakeTransfer перевести со счета на счет
+func (svc *service) MakeTransfer(ctx context.Context, reqDTO *dto.TransferRequestDTO, exchangeRateRatio float64) (*dto.MakePurchaseResponse, error) {
+	accFrom, accTo, err := svc.store.TransferMoney(ctx, reqDTO)
+	if err != nil {
+		return nil, fmt.Errorf("accounts store error: %w", err)
+	}
+	accFromBefore := &core.Account{
+		Number:    accFrom.Number,
+		UserID:    accFrom.UserID,
+		Currency:  accFrom.Currency,
+		Balance:   accFrom.Balance.Add(reqDTO.CreditAmountCents),
+		CreatedAt: accFrom.CreatedAt,
+	}
+	accToBefore := &core.Account{
+		Number:    accTo.Number,
+		UserID:    accTo.UserID,
+		Currency:  accTo.Currency,
+		Balance:   accTo.Balance.Sub(reqDTO.DebitAmountCents),
+		CreatedAt: accTo.CreatedAt,
+	}
+
+	var purpose = fmt.Sprintf("Перевод со счета %s (%s) на счет %s (%s)", accFrom.Number.String(), accFrom.Currency, accTo.Number.String(), accTo.Currency)
+	operations := []*core.Operation{
+		{
+			Purpose:           purpose,
+			OperationType:     core.OperationTypeTransfer,
+			AccountNumberTo:   &accTo.Number,
+			AmountCentsTo:     &reqDTO.DebitAmountCents,
+			CurrencyTo:        &accTo.Currency,
+			AccountNumberFrom: &accFrom.Number,
+			AmountCentsFrom:   &reqDTO.CreditAmountCents,
+			CurrencyFrom:      &accFrom.Currency,
+			ExchangeRateRatio: exchangeRateRatio,
+		},
+	}
+	err = svc.store.InsertOperations(ctx, operations)
+	if err != nil {
+		return nil, fmt.Errorf("operations store err: %w", err)
+	}
+	return &dto.MakePurchaseResponse{
+		OldAccountFrom: accFromBefore,
+		NewAccountFrom: accFrom,
+		OldAccountTo:   accToBefore,
+		NewAccountTo:   accTo,
+		Purpose:        purpose,
 	}, nil
 }

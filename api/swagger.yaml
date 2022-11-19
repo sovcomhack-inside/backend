@@ -100,12 +100,6 @@ paths:
         - Accounts
       summary: List user accounts
       security: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ListUserAccountsRequest"
-        required: true
       responses:
         "500":
           description: Internal error
@@ -285,13 +279,6 @@ components:
       properties:
         account:
           $ref: '#/components/schemas/AccountItem'
-
-    ListUserAccountsRequest:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          example: 1
 
     ListUserAccountsResponse:
       type: object
