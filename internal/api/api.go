@@ -50,6 +50,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	account.POST("/refill", controller.RefillAccount)
 	account.POST("/withdraw", controller.WithdrawFromAccount)
 	account.POST("/buy", controller.MakePurchase)
+	account.POST("/sell", controller.MakeSale)
 
 	oauth := api.Group("/oauth")
 	oauth.GET("/telegram", controller.OAuthTelegram)

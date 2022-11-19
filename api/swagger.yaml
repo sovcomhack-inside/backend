@@ -155,6 +155,52 @@ paths:
               schema:
                 $ref: "#/components/schemas/WithdrawFromAccountResponse"
 
+  /accounts/buy:
+    post:
+      tags:
+        - Accounts
+      summary: (BUY) Transfer moeny from one account to another with currency conversion
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MakePurchaseRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MakePurchaseResponse"
+
+  /accounts/sell:
+    post:
+      tags:
+        - Accounts
+      summary: (SELL) Transfer moeny from one account to another with currency conversion
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MakeSaleRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MakeSaleResponse"
+
   /admin/login:
     post:
       tags:
@@ -192,6 +238,7 @@ paths:
           content: { }
         "200":
           description: Success
+
 
 components:
   parameters:
@@ -340,6 +387,74 @@ components:
           type: string
           example: Вывод со счета на банковскую карту
 
+    MakePurchaseRequest:
+      type: object
+      properties:
+        account_number_from:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
+        currency_from:
+          type: string
+          example: "RUB"
+        desired_amount_cents:
+          type: integer
+          example: 1000
+        account_number_to:
+          type: string
+          example: c6f3c9e4-683f-11ed-9022-0242ac120002
+        currency_to:
+          type: string
+          example: "USD"
+
+    MakePurchaseResponse:
+      type: object
+      properties:
+        old_account_from:
+          $ref: '#/components/schemas/AccountItem'
+        new_account_from:
+          $ref: '#/components/schemas/AccountItem'
+        old_account_to:
+          $ref: '#/components/schemas/AccountItem'
+        new_account_to:
+          $ref: '#/components/schemas/AccountItem'
+        purpose:
+          type: string
+          example: Перевод со счета c6f3c9e4-683f-11ed-9022-0242ac120002 (EUR) на счет fb33fd0e-6782-11ed-9022-0242ac120002 (RUB)
+
+    MakeSaleRequest:
+      type: object
+      properties:
+        account_number_from:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
+        currency_from:
+          type: string
+          example: "USD"
+        selling_amount_cents:
+          type: integer
+          example: 100
+        account_number_to:
+          type: string
+          example: c6f3c9e4-683f-11ed-9022-0242ac120002
+        currency_to:
+          type: string
+          example: "RUB"
+
+    MakeSaleResponse:
+      type: object
+      properties:
+        old_account_from:
+          $ref: '#/components/schemas/AccountItem'
+        new_account_from:
+          $ref: '#/components/schemas/AccountItem'
+        old_account_to:
+          $ref: '#/components/schemas/AccountItem'
+        new_account_to:
+          $ref: '#/components/schemas/AccountItem'
+        purpose:
+          type: string
+          example: Перевод со счета c6f3c9e4-683f-11ed-9022-0242ac120002 (EUR) на счет fb33fd0e-6782-11ed-9022-0242ac120002 (RUB)
+
 
     AccountItem:
       type: object
@@ -348,14 +463,14 @@ components:
           type: string
           example: fb33fd0e-6782-11ed-9022-0242ac120002
         user_id:
-          type: integer
-          example: 1
+          type: string
+          example: "1"
         currency:
           type: string
           example: RUB
         cents:
-          type: integer
-          example: 10000
+          type: string
+          example: "10000"
         created_at:
           type: string
           example: 2006-1-2
