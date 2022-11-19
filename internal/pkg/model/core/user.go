@@ -22,7 +22,7 @@ type UserPassword struct {
 }
 
 type User struct {
-	ID    string     `json:"id" db:"id"`
+	ID    int64      `json:"id" db:"id"`
 	Email NullString `json:"email" db:"email"`
 	Image NullString `json:"image" db:"image"`
 	UserName

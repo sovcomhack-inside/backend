@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
+	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 	"github.com/spf13/viper"
 )
@@ -23,6 +24,12 @@ func (svc *APIService) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		token, err := utils.ParseAuthToken(cookie.Value)
 		if err != nil {
 			return err
+		}
+
+		if status, err := svc.store.GetUserStatus(ctx.Request().Context(), token.UserID); err != nil {
+			return err
+		} else if status != string(core.UserStatusApproved) {
+			return constants.ErrUnauthorized
 		}
 
 		ctx.Set(constants.CtxKeyUserID, token.UserID)

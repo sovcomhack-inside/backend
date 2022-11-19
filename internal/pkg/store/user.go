@@ -48,3 +48,12 @@ func (s *store) UpdateUserStatus(ctx context.Context, id int64, status core.User
 	}
 	return nil
 }
+
+func (s *store) GetUserStatus(ctx context.Context, id int64) (string, error) {
+	var status string
+	query := builder().Select("status").From(tableUsersStatuses).Where(squirrel.Eq{"id": id})
+	if err := s.pool.Getx(ctx, &status, query); err != nil {
+		return "", err
+	}
+	return status, nil
+}

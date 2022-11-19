@@ -12,7 +12,9 @@ import (
 )
 
 type APIService struct {
-	router *echo.Echo
+	router  *echo.Echo
+	store   store.Store
+	service service.Service
 }
 
 func (svc *APIService) Serve(addr string) {
@@ -24,17 +26,17 @@ func (svc *APIService) Shutdown(ctx context.Context) error {
 }
 
 func NewAPIService(store store.Store) (*APIService, error) {
-	svc := &APIService{router: echo.New()}
+	svc := &APIService{router: echo.New(), store: store}
 
 	svc.router.Validator = NewValidator()
 	svc.router.Binder = NewBinder()
-
-	service := service.NewService(store)
-	controller := controller.NewController(service)
-
 	svc.router.Use(middleware.Logger())
+	svc.router.HTTPErrorHandler = httpErrorHandler
+
+	svc.service = service.NewService(store)
 
 	api := svc.router.Group("/api/v1")
+	controller := controller.NewController(svc.service)
 
 	auth := api.Group("/auth")
 	auth.POST("/signup", controller.SignupUser)
