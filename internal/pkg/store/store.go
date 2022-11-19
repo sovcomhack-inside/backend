@@ -33,4 +33,5 @@ type UserStore interface {
 	// UpdateUser(ctx context.Context, user *core.User) error
 	// DeleteUser(ctx context.Context, user *core.User) error
 	UpdateUserStatus(ctx context.Context, id int64, status core.UserStatus) error
+	GetUserStatus(ctx context.Context, id int64) (string, error)
 }

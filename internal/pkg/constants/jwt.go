@@ -6,4 +6,5 @@ const (
 
 	ViperJWTTTLKey    = "service.jwt_ttl"
 	ViperJWTSecretKey = "service.jwt_secret"
+	ViperSecretKey    = "service.secret"
 )

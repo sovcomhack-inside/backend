@@ -1,26 +1,24 @@
 package controller
 
 import (
-	"errors"
-	"fmt"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/sovcomhack-inside/internal/pkg/constants"
+	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 )
 
-func (c *Controller) CreateAccount(ctx *fiber.Ctx) error {
+func (c *Controller) CreateAccount(ctx echo.Context) error {
 	request := &dto.CreateAccountRequest{}
-	if err := Bind(ctx, request, ctx.BodyParser); err != nil {
+	if err := ctx.Bind(request); err != nil {
 		return err
 	}
 
-	response, err := c.service.CreateAccount(ctx.Context(), request)
+	response, err := c.service.CreateAccount(ctx.Request().Context(), request)
 	if err != nil {
 		return fmt.Errorf("account controller internal error: %w", err)
-
 	}
-	return ctx.JSON(response)
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 func (c *Controller) ListUserAccounts(ctx *fiber.Ctx) error {

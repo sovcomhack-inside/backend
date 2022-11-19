@@ -1,18 +1,17 @@
 package utils
 
 import (
+	"net/http"
 	"time"
-
-	"github.com/gofiber/fiber/v2"
 )
 
-func CreateHttpOnlyCookie(name, value string, ttl int64) *fiber.Cookie {
-	return &fiber.Cookie{
+func CreateHttpOnlyCookie(name, value string, ttl int64) *http.Cookie {
+	return &http.Cookie{
 		Name:     name,
 		Value:    value,
 		Expires:  time.Now().Add(time.Second * time.Duration(ttl)),
 		Path:     "/",
-		HTTPOnly: true,
-		SameSite: fiber.CookieSameSiteLaxMode,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	}
 }

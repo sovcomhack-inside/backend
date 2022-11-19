@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 )
 
@@ -25,7 +25,7 @@ func ValidateStruct(i interface{}) error {
 	return nil
 }
 
-func Bind(ctx *fiber.Ctx, out interface{}, parsers ...Parser) error {
+func Bind(ctx echo.Context, out interface{}, parsers ...Parser) error {
 	for _, parser := range parsers {
 		parser(out)
 	}

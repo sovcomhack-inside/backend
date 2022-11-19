@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/sovcomhack-inside/internal/pkg/constants"
+	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
@@ -49,6 +50,8 @@ func (svc *service) LoginUser(ctx context.Context, request *dto.LoginUserRequest
 	if err := user.UserPassword.Validate(request.Password); err != nil {
 		return nil, err
 	}
+
+	logger.Debugf(ctx, "login: userID: [%v]", user.ID)
 
 	authToken, err := utils.GenerateAuthToken(&utils.AuthTokenWrapper{UserID: user.ID})
 	if err != nil {
