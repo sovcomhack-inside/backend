@@ -240,7 +240,7 @@ paths:
           description: Success
 
   /admin/list_users:
-    put:
+    post:
       tags:
         - Admin
       summary: List Users
@@ -521,6 +521,10 @@ components:
         status:
           type: string
           enum: [pending_approve, approved, banned]
+        email_in:
+          type: array
+          items:
+            type: string
     
     ListUsersResponse:
       type: object

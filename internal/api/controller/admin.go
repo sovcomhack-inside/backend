@@ -5,7 +5,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
-	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/utils"
 	"github.com/spf13/viper"
@@ -51,7 +50,7 @@ func (c *Controller) ListUsers(ctx echo.Context) error {
 		return err
 	}
 
-	users, err := c.store.ListUsersInStatus(ctx.Request().Context(), core.UserStatus(request.Status))
+	users, err := c.store.ListUsers(ctx.Request().Context(), request)
 	if err != nil {
 		return err
 	}

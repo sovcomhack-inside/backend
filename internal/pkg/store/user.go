@@ -2,9 +2,11 @@ package store
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
+	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 )
 
 var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt"}
@@ -58,16 +60,20 @@ func (s *store) GetUserStatus(ctx context.Context, id int64) (string, error) {
 	return status, nil
 }
 
-func (s *store) ListUsersInStatus(ctx context.Context, status core.UserStatus) ([]core.User, error) {
+func (s *store) ListUsers(ctx context.Context, request *dto.ListUsersRequest) ([]core.User, error) {
 	users := []core.User{}
-	const query = `
-	SELECT id, email, image, first_name, last_name FROM users WHERE id IN (
-		SELECT id FROM users_statuses WHERE status = $1
-	)
-	`
-	if err := s.pool.Select(ctx, &users, query, status); err != nil {
+	query := builder().Select("id", "email", "image", "first_name", "last_name").From("users")
+	query = query.Where(fmt.Sprintf("id IN (SELECT id FROM users_statuses WHERE status = '%v')", request.Status))
+	if len(request.EmailIn) > 0 {
+		query = query.Where(squirrel.Eq{"email": request.EmailIn})
+	}
+
+	fmt.Println(query.ToSql())
+
+	if err := s.pool.Selectx(ctx, &users, query); err != nil {
 		return nil, err
 	}
+
 	return users, nil
 }
 

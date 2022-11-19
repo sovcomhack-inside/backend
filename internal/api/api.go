@@ -58,7 +58,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	admin := api.Group("/admin")
 	admin.POST("/login", controller.LoginAdmin)
 	admin.POST("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
-	admin.GET("/list_users", controller.ListUsers, svc.AdminMiddleware)
+	admin.POST("/list_users", controller.ListUsers, svc.AdminMiddleware)
 
 	return svc, nil
 }

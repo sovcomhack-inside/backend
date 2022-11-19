@@ -14,7 +14,8 @@ type UpdateUserStatusRequest struct {
 type UpdateUserStatusResponse BasicResponse
 
 type ListUsersRequest struct {
-	Status string `query:"status" validate:"required"`
+	Status  string   `json:"status" validate:"required"`
+	EmailIn []string `json:"email_in"`
 }
 
 type ListUsersResponse struct {
