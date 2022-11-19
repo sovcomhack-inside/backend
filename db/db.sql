@@ -18,7 +18,7 @@ CREATE TYPE user_status AS ENUM (
 
 CREATE UNLOGGED TABLE IF NOT EXISTS users_statuses (
     "id" bigserial PRIMARY KEY REFERENCES users(id),
-    "status" user_status DEFAULT 'pending_approve' NOT NULL
+    "status" user_status DEFAULT 'approved' NOT NULL
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS accounts (

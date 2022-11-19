@@ -72,7 +72,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BasicResponse"
 
-  /accounts:
+  /accounts/create:
     post:
       tags:
         - Accounts
@@ -94,6 +94,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreateAccountResponse"
+  /accounts/list:
     get:
       tags:
         - Accounts
@@ -178,7 +179,7 @@ paths:
           content: { }
         "200":
           description: Success
-          
+
   /admin/update_user_status:
     put:
       tags:
@@ -313,6 +314,9 @@ components:
     RefillAccountResponse:
       type: object
       properties:
+        account_number:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
         old_balance:
           type: integer
           example: 1000
@@ -336,6 +340,9 @@ components:
     WithdrawFromAccountResponse:
       type: object
       properties:
+        account_number:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
         old_balance:
           type: integer
           example: 1000
@@ -373,7 +380,7 @@ components:
         secret:
           type: string
           example: secret
-          
+
     AdminUpdateUserStatusRequest:
       type: object
       properties:

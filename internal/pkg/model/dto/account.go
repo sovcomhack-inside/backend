@@ -6,6 +6,7 @@ import (
 )
 
 type CreateAccountRequest struct {
+	UserID   int64  `json:"user_id"`
 	Currency string `json:"currency"`
 }
 
@@ -36,7 +37,8 @@ type WithdrawFromAccountRequest struct {
 type WithdrawFromAccountResponse ChangeAccountBalanceResponse
 
 type ChangeAccountBalanceResponse struct {
-	OldBalance int64  `json:"old_balance"`
-	NewBalance int64  `json:"new_balance"`
-	Purpose    string `json:"purpose"`
+	AccountNumber uuid.UUID `json:"account_number"`
+	OldBalance    int64     `json:"old_balance"`
+	NewBalance    int64     `json:"new_balance"`
+	Purpose       string    `json:"purpose"`
 }
