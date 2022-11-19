@@ -13,6 +13,7 @@ require (
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/labstack/gommon v0.4.0
 	github.com/samber/lo v1.35.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/viper v1.14.0
 	go.uber.org/zap v1.23.0
 )

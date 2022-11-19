@@ -8,17 +8,26 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
+	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
 )
 
 type AccountStore interface {
 	CreateAccount(ctx context.Context, account *core.Account) error
-	SearchUserAccounts(ctx context.Context, userID int64) ([]core.Account, error)
-	UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, debitAmount int64) (acc *core.Account, txErr error)
+	SearchUserAccounts(ctx context.Context, opts SearchAccountsOpts) ([]core.Account, error)
+	UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, debitAmount decimal.Decimal) (acc *core.Account, txErr error)
+	TransferMoney(ctx context.Context, req *dto.TransferRequestDTO) (accFrom *core.Account, accTo *core.Account, txErr error)
 }
 
+type SearchAccountsOpts struct {
+	UserID           int64
+	AccountNumbersIn []uuid.UUID
+}
+
+// CreateAccount создать счет в базе
 func (s *store) CreateAccount(ctx context.Context, account *core.Account) error {
 	query := builder().Insert(tableAccounts).
 		Columns("number", "user_id", "currency").
@@ -35,10 +44,16 @@ func (s *store) CreateAccount(ctx context.Context, account *core.Account) error 
 	return nil
 }
 
-func (s *store) SearchUserAccounts(ctx context.Context, userID int64) ([]core.Account, error) {
+// SearchUserAccounts найти все счета по заданным параметрам
+func (s *store) SearchUserAccounts(ctx context.Context, opts SearchAccountsOpts) ([]core.Account, error) {
 	query := builder().Select("number", "user_id", "currency", "balance", "created_at").
-		From(tableAccounts).
-		Where(squirrel.Eq{"user_id": userID})
+		From(tableAccounts)
+	if opts.UserID != 0 {
+		query = query.Where(squirrel.Eq{"user_id": opts.UserID})
+	}
+	if len(opts.AccountNumbersIn) > 0 {
+		query = query.Where(squirrel.Eq{"number": opts.AccountNumbersIn})
+	}
 
 	var accounts []core.Account
 
@@ -49,7 +64,8 @@ func (s *store) SearchUserAccounts(ctx context.Context, userID int64) ([]core.Ac
 	return accounts, nil
 }
 
-func (s *store) UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, deltaAmountCents int64) (acc *core.Account, txErr error) {
+// UpdateAccountBalance изменить баланс на счете
+func (s *store) UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, deltaAmountCents decimal.Decimal) (acc *core.Account, txErr error) {
 	txErr = s.withTx(ctx, func(ctx context.Context, tx Tx) error {
 		var err error
 
@@ -57,15 +73,14 @@ func (s *store) UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUI
 		if err != nil {
 			return fmt.Errorf("getAccount err: %w", err)
 		}
-		if acc.Balance+deltaAmountCents < 0 {
+		if acc.Balance.Add(deltaAmountCents).LessThan(decimal.NewFromInt(0)) {
 			return constants.ErrNotEnoughMoney
 		}
 
-		newBalance, err := updateAccountBalance(ctx, accountNumber, acc.Balance, deltaAmountCents, tx)
+		err = updateAccountBalance(ctx, acc, deltaAmountCents, tx)
 		if err != nil {
 			return fmt.Errorf("updateAccountBalance err: %w", err)
 		}
-		acc.Balance = newBalance
 		return nil
 	})
 	return
@@ -88,13 +103,43 @@ func getAccount(ctx context.Context, accountNumber uuid.UUID, executor xpgx.Exec
 	return &account, err
 }
 
-func updateAccountBalance(ctx context.Context, accountNumber uuid.UUID, balance, delta int64, executor xpgx.Executor) (int64, error) {
+func updateAccountBalance(ctx context.Context, account *core.Account, delta decimal.Decimal, executor xpgx.Executor) error {
 	query := builder().Update(tableAccounts).
-		Set("balance", balance+delta).
-		Where(squirrel.Eq{"number": accountNumber})
+		Set("balance", account.Balance.Add(delta)).
+		Where(squirrel.Eq{"number": account.Number}).
+		Suffix("RETURNING balance")
 
-	if _, err := executor.Execx(ctx, query); err != nil {
-		return 0, err
+	if err := executor.Getx(ctx, &account.Balance, query); err != nil {
+		return err
 	}
-	return balance + delta, nil
+	return nil
+}
+
+// TransferMoney снять деньги с одного счета, положить деньги на другой счет
+func (s *store) TransferMoney(ctx context.Context, req *dto.TransferRequestDTO) (accFrom *core.Account, accTo *core.Account, txErr error) {
+	txErr = s.withTx(ctx, func(ctx context.Context, tx Tx) error {
+		from, err := getAccount(ctx, req.AccountFrom, tx)
+		if err != nil {
+			return err
+		}
+		if from.Balance.LessThan(req.CreditAmountCents) {
+			return constants.ErrNotEnoughMoney
+		}
+		to, err := getAccount(ctx, req.AccountTo, tx)
+		if err != nil {
+			return err
+		}
+		err = updateAccountBalance(ctx, from, req.CreditAmountCents.Neg(), tx)
+		if err != nil {
+			return err
+		}
+		err = updateAccountBalance(ctx, to, req.DebitAmountCents, tx)
+		if err != nil {
+			return err
+		}
+		accFrom = from
+		accTo = to
+		return nil
+	})
+	return
 }
