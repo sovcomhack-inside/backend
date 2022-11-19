@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -47,6 +48,25 @@ func (c *Controller) RefillAccount(ctx *fiber.Ctx) error {
 	}
 	response, err := c.service.RefillAccount(ctx.Context(), request)
 	if err != nil {
+		return fmt.Errorf("account controller internal error: %w", err)
+	}
+	return ctx.JSON(response)
+}
+
+func (c *Controller) WithdrawFromAccount(ctx *fiber.Ctx) error {
+	request := &dto.WithdrawFromAccountRequest{}
+
+	if err := Bind(ctx, request, ctx.BodyParser); err != nil {
+		return err
+	}
+	if request.CreditAmountCents <= 0 {
+		return constants.ErrNegativeCredit
+	}
+	response, err := c.service.WithdrawFromAccount(ctx.Context(), request)
+	if err != nil {
+		if errors.Is(err, constants.ErrNotEnoughMoney) {
+			return constants.ErrNotEnoughMoney
+		}
 		return fmt.Errorf("account controller internal error: %w", err)
 	}
 	return ctx.JSON(response)

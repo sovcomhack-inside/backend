@@ -119,7 +119,7 @@ paths:
     post:
       tags:
         - Accounts
-      summary: Top up an account
+      summary: Deposit money to account
       security: [ ]
       requestBody:
         content:
@@ -137,6 +137,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RefillAccountResponse"
+  /accounts/withdraw:
+    post:
+      tags:
+        - Accounts
+      summary: Withdraw money from account
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawFromAccountRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawFromAccountResponse"
 
 components:
   parameters:
@@ -262,6 +284,29 @@ components:
         purpose:
           type: string
           example: Пополнение счета с банковской карты
+
+    WithdrawFromAccountRequest:
+      type: object
+      properties:
+        account_number:
+          type: string
+          example: a515a4bc-6805-11ed-9022-0242ac120002
+        credit_amount_cents:
+          type: integer
+          example: 123
+
+    WithdrawFromAccountResponse:
+      type: object
+      properties:
+        old_balance:
+          type: integer
+          example: 1000
+        new_balance:
+          type: integer
+          example: 877
+        purpose:
+          type: string
+          example: Вывод со счета на банковскую карту
 
 
     AccountItem:

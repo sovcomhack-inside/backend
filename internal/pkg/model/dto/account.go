@@ -26,7 +26,16 @@ type RefillAccountRequest struct {
 	DebitAmountCents int64     `json:"debit_amount_cents"`
 }
 
-type RefillAccountResponse struct {
+type RefillAccountResponse ChangeAccountBalanceResponse
+
+type WithdrawFromAccountRequest struct {
+	AccountNumber     uuid.UUID `json:"account_number"`
+	CreditAmountCents int64     `json:"credit_amount_cents"`
+}
+
+type WithdrawFromAccountResponse ChangeAccountBalanceResponse
+
+type ChangeAccountBalanceResponse struct {
 	OldBalance int64  `json:"old_balance"`
 	NewBalance int64  `json:"new_balance"`
 	Purpose    string `json:"purpose"`

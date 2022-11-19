@@ -16,7 +16,7 @@ import (
 type AccountStore interface {
 	CreateAccount(ctx context.Context, account *core.Account) error
 	SearchUserAccounts(ctx context.Context, userID int64) ([]core.Account, error)
-	RefillAccount(ctx context.Context, accountNumber uuid.UUID, debitAmount int64) (acc *core.Account, txErr error)
+	UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, debitAmount int64) (acc *core.Account, txErr error)
 }
 
 func (s *store) CreateAccount(ctx context.Context, account *core.Account) error {
@@ -49,7 +49,7 @@ func (s *store) SearchUserAccounts(ctx context.Context, userID int64) ([]core.Ac
 	return accounts, nil
 }
 
-func (s *store) RefillAccount(ctx context.Context, accountNumber uuid.UUID, debitAmount int64) (acc *core.Account, txErr error) {
+func (s *store) UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, deltaAmountCents int64) (acc *core.Account, txErr error) {
 	txErr = s.withTx(ctx, func(ctx context.Context, tx Tx) error {
 		var err error
 
@@ -57,8 +57,11 @@ func (s *store) RefillAccount(ctx context.Context, accountNumber uuid.UUID, debi
 		if err != nil {
 			return fmt.Errorf("getAccount err: %w", err)
 		}
+		if acc.Balance+deltaAmountCents < 0 {
+			return constants.ErrNotEnoughMoney
+		}
 
-		newBalance, err := updateAccountBalance(ctx, accountNumber, acc.Balance, debitAmount, tx)
+		newBalance, err := updateAccountBalance(ctx, accountNumber, acc.Balance, deltaAmountCents, tx)
 		if err != nil {
 			return fmt.Errorf("updateAccountBalance err: %w", err)
 		}
