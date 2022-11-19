@@ -25,8 +25,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS accounts (
      number uuid,
      user_id bigint,
      created_at timestamptz default now(),
-     currency varchar(3),
-     cents bigint
+     currency varchar(3) not null,
+     cents bigint not null default 0
 );
 
 CREATE UNIQUE INDEX CONCURRENTLY account_user_id_currency

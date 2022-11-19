@@ -11,6 +11,7 @@ import (
 
 type AccountService interface {
 	CreateAccount(context.Context, *dto.CreateAccountRequest) (*dto.CreateAccountResponse, error)
+	ListUserAccounts(ctx context.Context, req *dto.ListUserAccountsRequest) (*dto.ListUserAccountResponse, error)
 }
 
 func (svc *service) CreateAccount(ctx context.Context, accountDTO *dto.CreateAccountRequest) (*dto.CreateAccountResponse, error) {
@@ -34,8 +35,22 @@ func (svc *service) CreateAccount(ctx context.Context, accountDTO *dto.CreateAcc
 		return nil, fmt.Errorf("account store error: %w", err)
 	}
 	return &dto.CreateAccountResponse{
-		AccountNumber: account.Number.String(),
-		Currency:      account.Currency,
-		CreatedAt:     account.CreatedAt,
+		Account: *account,
 	}, nil
+}
+
+func (svc *service) ListUserAccounts(ctx context.Context, req *dto.ListUserAccountsRequest) (*dto.ListUserAccountResponse, error) {
+	//userId, err := strconv.ParseInt(ctx.Value(constants.CtxKeyUserID{}).(string), 10, 64)
+	//if err != nil {
+	//	return nil, err
+	//}
+	var userId int64
+	var err error
+
+	userId = 1
+	accounts, err := svc.store.SearchUserAccounts(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("account store error: %w", err)
+	}
+	return &dto.ListUserAccountResponse{Accounts: accounts}, nil
 }

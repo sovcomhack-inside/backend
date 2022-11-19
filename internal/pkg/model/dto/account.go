@@ -1,13 +1,21 @@
 package dto
 
-import "time"
+import (
+	"github.com/sovcomhack-inside/internal/pkg/model/core"
+)
 
 type CreateAccountRequest struct {
 	Currency string `json:"currency"`
 }
 
 type CreateAccountResponse struct {
-	AccountNumber string    `json:"account_number"`
-	Currency      string    `json:"currency"`
-	CreatedAt     time.Time `json:"created_at"`
+	Account core.Account `json:"account"`
+}
+
+type ListUserAccountsRequest struct {
+	UserID int64 `json:"user_id"`
+}
+
+type ListUserAccountResponse struct {
+	Accounts []core.Account `json:"accounts"`
 }

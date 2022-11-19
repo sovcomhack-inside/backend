@@ -59,6 +59,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	account := api.Group("/accounts")
 
 	account.Post("/", controller.CreateAccount)
+	account.Get("/", controller.ListUserAccounts)
 
 	oauth := api.Group("/oauth").Use(svc.OAuthTelegramMiddleware())
 	oauth.Get("/telegram", controller.OAuthTelegram)
