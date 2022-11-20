@@ -70,5 +70,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	operations := api.Group("/operations", svc.AuthMiddleware)
 	operations.POST("/list", controller.ListOperations)
 
+	funtik := api.Group("/funtik")
+	funtik.POST("/subscribe", controller.SubscribeToFuntik)
+
 	return svc, nil
 }

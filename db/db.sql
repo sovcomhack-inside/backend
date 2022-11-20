@@ -1,13 +1,14 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS users (
-  "id" bigserial PRIMARY KEY,
-  "email" text UNIQUE,
-  "image" text,
-  "first_name" text NOT NULL,
-  "last_name" text NOT NULL,
-  "password_hash" text NOT NULL,
-  "password_salt" text NOT NULL,
-  "created_at" timestamptz not null default now(),
-  "updated_at" timestamptz not null default now()
+  "id"                      bigserial PRIMARY KEY,
+  "email"                   text UNIQUE,
+  "image"                   text,
+  "first_name"              text NOT NULL,
+  "last_name"               text NOT NULL,
+  "password_hash"           text NOT NULL,
+  "password_salt"           text NOT NULL,
+  "created_at"              timestamptz not null default now(),
+  "updated_at"              timestamptz not null default now(),
+  "subscription_expired_at" timestamptz
 );
 
 CREATE TYPE user_status AS ENUM (
@@ -26,17 +27,19 @@ CREATE UNLOGGED TABLE IF NOT EXISTS accounts (
      user_id    bigint,
      created_at timestamptz default now(),
      currency   varchar(3) not null,
-     balance    decimal not null default 0
+     balance    decimal not null default 0,
+     for_bot    bool
 );
 
 CREATE UNIQUE INDEX CONCURRENTLY account_user_id_currency
-    ON accounts (user_id, currency);
+    ON accounts (user_id, currency, for_bot);
 
 create type operation_type as enum (
     'refill',
     'withdrawal',
     'transfer'
-    );
+    'subscription'
+);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS operations (
    id uuid                          not null primary key default gen_random_uuid(),
@@ -49,7 +52,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS operations (
    account_number_from              uuid,
    amount_cents_from                decimal,
    currency_from                    varchar(3),
-   exchange_rate_ratio   float
+   exchange_rate_ratio              float
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS users_telegram_id (

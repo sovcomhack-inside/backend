@@ -7,9 +7,10 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/sovcomhack-inside/internal/pkg/model/core"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
+	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
 )
 
-var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt"}
+var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt", "subscription_expired_at"}
 
 func (s *store) CreateUser(ctx context.Context, user *core.User) error {
 	return s.withTx(ctx, func(ctx context.Context, tx Tx) error {
@@ -35,6 +36,15 @@ func (s *store) GetUserByID(ctx context.Context, id int64) (*core.User, error) {
 	var user core.User
 	query := builder().Select(userColumns...).From(tableUsers).Where(squirrel.Eq{"id": id})
 	if err := s.pool.Getx(ctx, &user, query); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func getUserByID(ctx context.Context, id int64, executor xpgx.Executor) (*core.User, error) {
+	var user core.User
+	query := builder().Select(userColumns...).From(tableUsers).Where(squirrel.Eq{"id": id})
+	if err := executor.Getx(ctx, &user, query); err != nil {
 		return nil, err
 	}
 	return &user, nil

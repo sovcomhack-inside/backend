@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/base64"
 	"fmt"
+	"time"
 
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 )
@@ -22,9 +23,10 @@ type UserPassword struct {
 }
 
 type User struct {
-	ID    int64      `json:"id" db:"id"`
-	Email NullString `json:"email" db:"email"`
-	Image NullString `json:"image" db:"image"`
+	ID                    int64      `json:"id" db:"id"`
+	Email                 NullString `json:"email" db:"email"`
+	Image                 NullString `json:"image" db:"image"`
+	SubscriptionExpiredAt *time.Time `json:"subscription_expired_at" db:"subscription_expired_at"`
 	UserName
 	UserPassword
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -20,6 +21,7 @@ type AccountStore interface {
 	SearchUserAccounts(ctx context.Context, opts SearchAccountsOpts) ([]core.Account, error)
 	UpdateAccountBalance(ctx context.Context, accountNumber uuid.UUID, debitAmount decimal.Decimal) (acc *core.Account, txErr error)
 	TransferMoney(ctx context.Context, req *dto.TransferRequestDTO) (accFrom *core.Account, accTo *core.Account, txErr error)
+	SubscribeToFuntik(ctx context.Context, req *dto.SubscribeToFuntikRequest) (acc *core.Account, txErr error)
 }
 
 type SearchAccountsOpts struct {
@@ -142,4 +144,39 @@ func (s *store) TransferMoney(ctx context.Context, req *dto.TransferRequestDTO) 
 		return nil
 	})
 	return
+}
+
+func (s *store) SubscribeToFuntik(ctx context.Context, req *dto.SubscribeToFuntikRequest) (accFrom *core.Account, txErr error) {
+	txErr = s.withTx(ctx, func(ctx context.Context, tx Tx) error {
+		user, err := getUserByID(ctx, req.UserID, tx)
+		if err != nil {
+			return err
+		}
+		if user.SubscriptionExpiredAt != nil && (*user.SubscriptionExpiredAt).After(time.Now()) {
+			return errors.New("subscription is already active")
+		}
+		acc, err := getAccount(ctx, req.AccountNumberFrom, tx)
+		if err != nil {
+			return err
+		}
+		err = updateAccountBalance(ctx, acc, decimal.NewFromInt(req.SubscribePriceCents).Neg(), tx)
+		if err != nil {
+			return err
+		}
+		err = updateSubscriptionExpiredAt(ctx, user, tx)
+		acc = accFrom
+		return nil
+	})
+	return
+}
+
+func updateSubscriptionExpiredAt(ctx context.Context, user *core.User, executor xpgx.Executor) error {
+	query := builder().
+		Update(tableUsers).
+		Set("subscription_expired_at", time.Now()).
+		Where(squirrel.Eq{"id": user.ID})
+	if _, err := executor.Execx(ctx, query); err != nil {
+		return err
+	}
+	return nil
 }
