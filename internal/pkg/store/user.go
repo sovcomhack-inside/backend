@@ -10,13 +10,13 @@ import (
 	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
 )
 
-var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt"}
+var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt", "main_account_number"}
 
 func (s *store) CreateUser(ctx context.Context, user *core.User) error {
 	return s.withTx(ctx, func(ctx context.Context, tx Tx) error {
 		query := builder().Insert(tableUsers).
 			Columns(userColumns[1:]...).
-			Values(user.Email, user.Image, user.FirstName, user.LastName, user.UserPassword.Hash, user.UserPassword.Salt).
+			Values(user.Email, user.Image, user.FirstName, user.LastName, user.UserPassword.Hash, user.UserPassword.Salt, user.MainAccountNumber).
 			Suffix("RETURNING id")
 
 		if err := tx.Getx(ctx, user, query); err != nil {

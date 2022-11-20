@@ -348,7 +348,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubscribeToFuntikResponse"
-
+  /users/get:
+    get:
+      tags:
+        - User
+      summary: get user data
+      security: [ ]
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 
 components:
   parameters:
@@ -409,7 +424,25 @@ components:
           example: password
 
     SignupUserResponse:
-      $ref: "#/components/schemas/BasicResponse"
+      $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          example: mail@example.com
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        password:
+          type: string
+          example: password
+        mainAccountNumber:
+          type: string
 
     LoginUserRequest:
       type: object
@@ -422,7 +455,8 @@ components:
           example: password
 
     LoginUserResponse:
-      $ref: "#/components/schemas/BasicResponse"
+      $ref: "#/components/schemas/User"
+
 
     CreateAccountRequest:
       type: object
