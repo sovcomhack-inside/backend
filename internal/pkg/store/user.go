@@ -100,7 +100,7 @@ func (s *store) ListUsers(ctx context.Context, request *dto.ListUsersRequest) ([
 
 func (s *store) LinkTelegramID(ctx context.Context, id, telegramID int64) error {
 	const query = `
-	INSERT INTO users_telegram_id COLUMNS (id, user_id) VALUES ($1, $2)
+	INSERT INTO users_telegram_id (id, user_id) VALUES ($1, $2)
 	`
 	if _, err := s.pool.Exec(ctx, query, id, telegramID); err != nil {
 		return err
