@@ -429,6 +429,9 @@ components:
     User:
       type: object
       properties:
+        id:
+          type: number
+          example: 1
         email:
           type: string
           example: mail@example.com
@@ -456,7 +459,6 @@ components:
 
     LoginUserResponse:
       $ref: "#/components/schemas/User"
-
 
     CreateAccountRequest:
       type: object
@@ -625,7 +627,6 @@ components:
                 type: string
                 example: 2022-01-02
 
-
     ListOperationsRequest:
       type: object
       properties:
@@ -686,7 +687,6 @@ components:
         month_change:
           type: number
           example: 2.1
-
 
     AccountItem:
       type: object
@@ -760,7 +760,6 @@ components:
         status:
           type: string
           enum: [pending_approve, approved, banned]
-
 
     BasicResponse:
       type: object
