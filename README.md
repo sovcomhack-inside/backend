@@ -14,7 +14,7 @@
 
 - [Figma](https://www.figma.com/file/wg5W6zodk9CvxH4yV887PX/SovComHack?node-id=0%3A1&t=f1DZOc9YqKpub7IL-1)
 - [Customer Journey Map](https://www.figma.com/file/DKiZ8ZQDANAlJBGOugYrEi/Inside-Job?t=XlC4L3wtSGN1YSp6-0)
-- Репозиторий фронтенда: TODO
+- Репозиторий фронтенда: [github.com/sovcomhack-inside/frontend](https://github.com/sovcomhack-inside/frontend)
 
 ## Запуск
 
