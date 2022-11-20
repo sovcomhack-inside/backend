@@ -559,8 +559,15 @@ components:
         price_data:
           type: array
           items:
-            type: number
-            example: 34.12
+            type: object
+            properties:
+              price:
+                type: number
+                example: 51.2
+              date:
+                type: string
+                example: 2022-01-02
+
 
     ListOperationsRequest:
       type: object
@@ -597,9 +604,16 @@ components:
         day_change_pct:
           type: number
           example: 1.04
+        day_change:
+          type: number
+          example: -0.123
         month_change_pct:
           type: number
           example: -1.5
+        month_change:
+          type: number
+          example: 2.1
+
 
     AccountItem:
       type: object
