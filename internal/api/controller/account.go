@@ -91,10 +91,11 @@ func (c *Controller) MakePurchase(ctx echo.Context) error {
 	if request.DesiredAmountCents.LessThanOrEqual(decimal.NewFromInt(0)) {
 		return constants.ErrNegativeDebit
 	}
-	rate := getRate(request.CurrencyTo, request.CurrencyFrom)
+	//rate := getRate(request.CurrencyTo, request.CurrencyFrom)
+	rate, err := c.service.LatestCurrencyPrice(request.CurrencyTo, request.CurrencyFrom)
 	reqDTO := &dto.TransferRequestDTO{
 		AccountFrom:       request.AccountNumberFrom,
-		CreditAmountCents: decimal.NewFromFloat(rate).Mul(request.DesiredAmountCents),
+		CreditAmountCents: rate.Mul(request.DesiredAmountCents),
 		AccountTo:         request.AccountNumberTo,
 		DebitAmountCents:  request.DesiredAmountCents,
 	}
