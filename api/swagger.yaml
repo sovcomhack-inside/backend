@@ -201,6 +201,29 @@ paths:
               schema:
                 $ref: "#/components/schemas/MakeSaleResponse"
 
+  /currencies/list:
+    get:
+      tags:
+        - Currencies
+      summary: List currencies with some info
+      parameters:
+        - in: query
+          name: code
+          description: currency code
+          schema:
+            type: string
+            enum: ["USD", "EUR", "RUB", "ILS", "INR", "JPY", "GBP", "KZT", "UAH", "EGP", "CNY"]
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListCurrenciesResponse"
+
   /admin/login:
     post:
       tags:
@@ -455,6 +478,32 @@ components:
           type: string
           example: Перевод со счета c6f3c9e4-683f-11ed-9022-0242ac120002 (EUR) на счет fb33fd0e-6782-11ed-9022-0242ac120002 (RUB)
 
+    ListCurrenciesResponse:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyItem'
+
+    CurrencyItem:
+      type: object
+      properties:
+        code:
+          type: string
+          example: USD
+        name:
+          type: string
+          example: Доллар США
+        current_price:
+          type: number
+          example: 62.5
+        day_change_pct:
+          type: number
+          example: 1.04
+        month_change_pct:
+          type: number
+          example: -1.5
 
     AccountItem:
       type: object
