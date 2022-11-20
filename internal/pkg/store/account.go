@@ -56,7 +56,7 @@ func (s *store) SearchUserAccounts(ctx context.Context, opts SearchAccountsOpts)
 	if len(opts.AccountNumbersIn) > 0 {
 		query = query.Where(squirrel.Eq{"number": opts.AccountNumbersIn})
 	}
-
+	query = query.Where(squirrel.Eq{"for_boot": false})
 	var accounts []core.Account
 
 	if err := s.pool.Selectx(ctx, &accounts, query); err != nil {

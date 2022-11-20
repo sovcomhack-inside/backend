@@ -43,7 +43,7 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	dateNow := time.Now()
 	dateDaysBefore := dateNow.AddDate(0, 0, -ndays)
 
-	if viper.GetBool("mock_enabled") {
+	if viper.GetBool("service.mock_enabled") {
 		for i := 0; i < ndays; i++ {
 			priceData = append(priceData, dto.PriceData{
 				Price: float64(rand.Intn(100)) + rand.Float64(),
@@ -108,7 +108,7 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 }
 
 func latestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error) {
-	if viper.GetBool("mock_enabled") {
+	if viper.GetBool("service.mock_enabled") {
 		return decimal.NewFromFloat(float64(rand.Intn(100)) + rand.Float64()), nil
 	}
 
@@ -140,7 +140,7 @@ func latestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error) {
 }
 
 func findCurrentPrices(ctx context.Context, base string, items []*dto.CurrencyChangeInfo) error {
-	if viper.GetBool("mock_enabled") {
+	if viper.GetBool("service.mock_enabled") {
 		for i := range items {
 			items[i].CurrentPrice = float64(rand.Intn(100)) + rand.Float64()
 			items[i].DayChangePct = float64(rand.Intn(4)) + rand.Float64()*float64(-1*rand.Intn(2))

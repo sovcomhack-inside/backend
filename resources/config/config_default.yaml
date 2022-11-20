@@ -9,6 +9,7 @@ service:
   jwt_secret: secret
   secret: secret
   exchange_rates_secret: zyAc783IAR5xxXdgxohNEaoCMQdH8oFa
+  mock_enabled: true
 
 postgres:
   connection_string: postgres://root:rootpassword@postgres:5432/inside
