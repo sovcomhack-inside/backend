@@ -11,7 +11,7 @@ CONFIG_SOURCE_PATH=resources/config/config_default.yaml
 
 # improve build time
 DOCKER_BUILD_KIT:=COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1
-DCOMPOSE_BUILD_ARGS:=--build-arg CONFIG_PATH=${CONFIG_PATH} --parallel
+DCOMPOSE_BUILD_ARGS:=--build-arg CONFIG_PATH=${CONFIG_PATH}
 
 all: down build up
 
