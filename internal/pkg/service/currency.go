@@ -37,7 +37,7 @@ func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) 
 }
 
 func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base string, ndays int) (*dto.GetCurrencyDataResponse, error) {
-	var currencyData []float64
+	var currencyData []dto.PriceData
 
 	dateNow := time.Now()
 	dateDaysBefore := dateNow.AddDate(0, 0, -ndays)
@@ -72,9 +72,13 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	data := x["rates"].(map[string]interface{})
 
 	for i := 0; i < ndays; i++ {
-		currentData := data[dateDaysBefore.Format("2006-01-02")].(map[string]interface{})
+		dateStr := dateDaysBefore.Format("2006-01-02")
+		currentData := data[dateStr].(map[string]interface{})
 		basePrice := currentData[base].(float64)
-		currencyData = append(currencyData, basePrice/currentData[forCurrencyCode].(float64))
+		currencyData = append(currencyData, dto.PriceData{
+			Price: basePrice / currentData[forCurrencyCode].(float64),
+			Date:  dateStr,
+		})
 		dateDaysBefore = dateDaysBefore.AddDate(0, 0, 1)
 	}
 	return &dto.GetCurrencyDataResponse{
@@ -149,8 +153,10 @@ func findCurrentPrices(ctx context.Context, base string, items []*dto.CurrencyCh
 		baseCurrencyMap := x["rates"].(map[string]interface{})[base].(map[string]interface{})
 
 		items[i].CurrentPrice = baseCurrencyMap["end_rate"].(float64) / dayBeforeMap["end_rate"].(float64)
-		items[i].MonthChangePct = -monthBeforeMap["change_pct"].(float64)
 		items[i].DayChangePct = -dayBeforeMap["change_pct"].(float64)
+		items[i].DayChange = dayBeforeMap["change"].(float64)
+		items[i].MonthChangePct = -monthBeforeMap["change_pct"].(float64)
+		items[i].MonthChange = -monthBeforeMap["change"].(float64)
 	}
 
 	return nil
