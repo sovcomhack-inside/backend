@@ -10,6 +10,7 @@ import (
 
 type CurrencyService interface {
 	ListCurrencies(ctx context.Context, forCurrencyCode string) []*dto.CurrencyChangeInfo
+	GetCurrencyData(ctx context.Context, forCurrencyCode string, ndays int) *dto.GetCurrencyDataResponse
 }
 
 func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) []*dto.CurrencyChangeInfo {
@@ -27,6 +28,23 @@ func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) 
 	}
 	//findCurrentPrices(ctx, forCurrencyCode)
 	return currencyItems
+}
+
+func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode string, ndays int) *dto.GetCurrencyDataResponse {
+	var currencyData []float64
+
+	if ndays == 1 {
+		currencyData = make([]float64, 24)
+	} else {
+		currencyData = make([]float64, ndays)
+	}
+	for i := 0; i < len(currencyData); i++ {
+		currencyData[i] = math.Ceil(rand.Float64()+float64(rand.Intn(20)+50)*100) / 100
+	}
+	return &dto.GetCurrencyDataResponse{
+		Code:      forCurrencyCode,
+		PriceData: currencyData,
+	}
 }
 
 type rate struct {

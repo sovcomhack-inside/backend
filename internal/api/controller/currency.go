@@ -17,3 +17,13 @@ func (c *Controller) ListCurrencies(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, &dto.ListCurrenciesResponse{Currencies: currencies})
 }
+
+func (c *Controller) GetCurrencyData(ctx echo.Context) error {
+	var request = &dto.GetCurrencyDataRequest{}
+	if err := ctx.Bind(request); err != nil {
+		return err
+	}
+
+	resp := c.service.GetCurrencyData(ctx.Request().Context(), request.Code, request.DaysNumber)
+	return ctx.JSON(http.StatusOK, resp)
+}
