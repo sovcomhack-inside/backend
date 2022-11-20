@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
+	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/spf13/viper"
@@ -18,7 +19,7 @@ import (
 type CurrencyService interface {
 	ListCurrencies(ctx context.Context, forCurrencyCode string) ([]*dto.CurrencyChangeInfo, error)
 	GetCurrencyData(ctx context.Context, forCurrencyCode, base string, ndays int) (*dto.GetCurrencyDataResponse, error)
-	LatestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error)
+	LatestCurrencyPrice(ctx context.Context, codeFrom, codeTo string) (decimal.Decimal, error)
 }
 
 func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) ([]*dto.CurrencyChangeInfo, error) {
@@ -108,7 +109,7 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	}, nil
 }
 
-func (svc *service) LatestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error) {
+func (svc *service) LatestCurrencyPrice(ctx context.Context, codeFrom, codeTo string) (decimal.Decimal, error) {
 	if viper.GetBool("service.mock_enabled") {
 		return decimal.NewFromFloat(float64(rand.Intn(100)) + rand.Float64()), nil
 	}
@@ -137,6 +138,7 @@ func (svc *service) LatestCurrencyPrice(codeFrom, codeTo string) (decimal.Decima
 	err = json.Unmarshal(body, &x)
 
 	price := x["result"].(float64)
+	logger.Error(ctx, price)
 	return decimal.NewFromFloat(price), nil
 }
 
