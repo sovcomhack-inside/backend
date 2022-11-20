@@ -8,7 +8,7 @@ import (
 
 type CreateAccountRequest struct {
 	UserID   int64  `json:"user_id"`
-	Currency string `json:"currency"`
+	Currency string `json:"currency" validate:"required"`
 }
 
 type CreateAccountResponse struct {
@@ -24,15 +24,15 @@ type ListUserAccountResponse struct {
 }
 
 type RefillAccountRequest struct {
-	AccountNumber    uuid.UUID       `json:"account_number"`
-	DebitAmountCents decimal.Decimal `json:"debit_amount_cents"`
+	AccountNumber    uuid.UUID       `json:"account_number" validate:"required"`
+	DebitAmountCents decimal.Decimal `json:"debit_amount_cents" validate:"required"`
 }
 
 type RefillAccountResponse ChangeAccountBalanceResponse
 
 type WithdrawFromAccountRequest struct {
-	AccountNumber     uuid.UUID       `json:"account_number"`
-	CreditAmountCents decimal.Decimal `json:"credit_amount_cents"`
+	AccountNumber     uuid.UUID       `json:"account_number" validate:"required"`
+	CreditAmountCents decimal.Decimal `json:"credit_amount_cents" validate:"required"`
 }
 
 type WithdrawFromAccountResponse ChangeAccountBalanceResponse
@@ -45,21 +45,21 @@ type ChangeAccountBalanceResponse struct {
 }
 
 type MakePurchaseRequest struct {
-	AccountNumberFrom  uuid.UUID       `json:"account_number_from"`
-	CurrencyFrom       string          `json:"currency_from"`
-	DesiredAmountCents decimal.Decimal `json:"desired_amount_cents"`
-	AccountNumberTo    uuid.UUID       `json:"account_number_to"`
-	CurrencyTo         string          `json:"currency_to"`
+	AccountNumberFrom  uuid.UUID       `json:"account_number_from" validate:"required"`
+	CurrencyFrom       string          `json:"currency_from" validate:"required"`
+	DesiredAmountCents decimal.Decimal `json:"desired_amount_cents" validate:"required"`
+	AccountNumberTo    uuid.UUID       `json:"account_number_to" validate:"required"`
+	CurrencyTo         string          `json:"currency_to" validate:"required"`
 }
 
 type MakePurchaseResponse TransferInfo
 
 type MakeSaleRequest struct {
-	AccountNumberFrom  uuid.UUID       `json:"account_number_from"`
-	CurrencyFrom       string          `json:"currency_from"`
-	SellingAmountCents decimal.Decimal `json:"selling_amount_cents"`
-	AccountNumberTo    uuid.UUID       `json:"account_number_to"`
-	CurrencyTo         string          `json:"currency_to"`
+	AccountNumberFrom  uuid.UUID       `json:"account_number_from" validate:"required"`
+	CurrencyFrom       string          `json:"currency_from" validate:"required"`
+	SellingAmountCents decimal.Decimal `json:"selling_amount_cents" validate:"required"`
+	AccountNumberTo    uuid.UUID       `json:"account_number_to" validate:"required"`
+	CurrencyTo         string          `json:"currency_to" validate:"required"`
 }
 
 type MakeSaleResponse TransferInfo
