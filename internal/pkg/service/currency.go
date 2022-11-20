@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/spf13/viper"
@@ -46,10 +45,13 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
 	req.Header.Set("apikey", viper.GetString("service.exchange_rates_secret"))
 
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	res, err := client.Do(req)
 	if err != nil {
@@ -68,7 +70,6 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	if err != nil {
 		return nil, err
 	}
-	logger.Errorf(ctx, string(body))
 	data := x["rates"].(map[string]interface{})
 
 	for i := 0; i < ndays; i++ {
@@ -100,10 +101,13 @@ func findCurrentPrices(ctx context.Context, base string, items []*dto.CurrencyCh
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
 	req.Header.Set("apikey", viper.GetString("service.exchange_rates_secret"))
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	res, err := client.Do(req)
 	if err != nil {
@@ -116,6 +120,9 @@ func findCurrentPrices(ctx context.Context, base string, items []*dto.CurrencyCh
 	var x map[string]interface{}
 
 	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
 	err = json.Unmarshal(body, &x)
 
 	url = fmt.Sprintf(

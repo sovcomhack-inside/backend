@@ -13,4 +13,5 @@ type Account struct {
 	Currency  string          `json:"currency" db:"currency"`
 	Balance   decimal.Decimal `json:"balance" db:"balance"`
 	CreatedAt time.Time       `json:"created_at" db:"created_at"`
+	ForBot    bool            `json:"for_bot" db:"for_bot"`
 }

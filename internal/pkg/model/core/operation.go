@@ -13,6 +13,7 @@ const (
 	OperationTypeRefill     OperationType = "refill"
 	OperationTypeWithdrawal OperationType = "withdrawal"
 	OperationTypeTransfer   OperationType = "transfer"
+	OperationTypeSubscribe  OperationType = "subscribe"
 )
 
 type Operation struct {
