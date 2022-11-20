@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/sovcomhack-inside/internal/pkg/model"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 )
 
@@ -14,8 +15,8 @@ type CurrencyService interface {
 }
 
 func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) []*dto.CurrencyChangeInfo {
-	currencyItems := make([]*dto.CurrencyChangeInfo, 0, len(CurrencyCodeToName)-1)
-	for code, name := range CurrencyCodeToName {
+	currencyItems := make([]*dto.CurrencyChangeInfo, 0, len(model.CurrencyCodeToName)-1)
+	for code, name := range model.CurrencyCodeToName {
 		if code != forCurrencyCode {
 			currencyItems = append(currencyItems, &dto.CurrencyChangeInfo{
 				Code:           code,
