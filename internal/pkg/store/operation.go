@@ -18,13 +18,13 @@ type SearchOperationsOpts struct {
 
 type OperationStore interface {
 	InsertOperations(ctx context.Context, operations []*core.Operation) error
-	SearchOperations(ctx context.Context, opts *SearchOperationsOpts) ([]core.Operation, error)
+	SearchOperations(ctx context.Context, opts *SearchOperationsOpts) ([]*core.Operation, error)
 }
 
 func (s *store) InsertOperations(ctx context.Context, operations []*core.Operation) error {
 	query := builder().Insert(tableOperations).
 		Columns("purpose", "operation_type", "account_number_to", "amount_cents_to", "currency_to",
-			"account_number_from", "amount_cents_from", "currency_from", "currencies_exchange_rate_ratio")
+			"account_number_from", "amount_cents_from", "currency_from", "exchange_rate_ratio")
 	for _, op := range operations {
 		query = query.Values(
 			op.Purpose, op.OperationType, op.AccountNumberTo, op.AmountCentsTo, op.CurrencyTo,
@@ -37,16 +37,16 @@ func (s *store) InsertOperations(ctx context.Context, operations []*core.Operati
 	return nil
 }
 
-func (s *store) SearchOperations(ctx context.Context, opts *SearchOperationsOpts) ([]core.Operation, error) {
+func (s *store) SearchOperations(ctx context.Context, opts *SearchOperationsOpts) ([]*core.Operation, error) {
 	query := builder().Select("id", "purpose", "time", "operation_type", "account_number_to", "amount_cents_to", "currency_to",
-		"account_number_from", "amount_cents_from", "currency_from", "currencies_exchange_rate_ratio").
+		"account_number_from", "amount_cents_from", "currency_from", "exchange_rate_ratio").
 		From(tableOperations)
 	if len(opts.AccountNumbersIn) > 0 {
 		numbersStr := strings.Join(
 			lo.Map(
 				opts.AccountNumbersIn,
 				func(number uuid.UUID, _ int) string {
-					return number.String()
+					return fmt.Sprintf("'%s'", number.String())
 				}),
 			", ",
 		)
@@ -56,7 +56,8 @@ func (s *store) SearchOperations(ctx context.Context, opts *SearchOperationsOpts
 	if len(opts.OperationTypesIn) > 0 {
 		query = query.Where(squirrel.Eq{"operation_type": opts.OperationTypesIn})
 	}
-	var operations []core.Operation
+	query = query.OrderBy("time DESC")
+	var operations []*core.Operation
 	if err := s.pool.Selectx(ctx, &operations, query); err != nil {
 		return nil, err
 	}

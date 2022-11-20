@@ -13,6 +13,7 @@ type Service interface {
 	OAuthService
 	AccountService
 	CurrencyService
+	OperationService
 }
 
 type service struct {

@@ -63,5 +63,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	currencies.GET("/list", controller.ListCurrencies)
 	currencies.GET("/data", controller.GetCurrencyData)
 
+	operations := api.Group("/operations", svc.AuthMiddleware)
+	operations.POST("/list", controller.ListOperations)
+
 	return svc, nil
 }

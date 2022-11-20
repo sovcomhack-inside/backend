@@ -49,5 +49,5 @@ CREATE UNLOGGED TABLE IF NOT EXISTS operations (
    account_number_from              uuid,
    amount_cents_from                decimal,
    currency_from                    varchar(3),
-   currencies_exchange_rate_ratio   float
+   exchange_rate_ratio   float
 );

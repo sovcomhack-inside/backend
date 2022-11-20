@@ -26,5 +26,5 @@ type Operation struct {
 	AccountNumberFrom *uuid.UUID       `json:"account_number_from" db:"account_number_from"`
 	AmountCentsFrom   *decimal.Decimal `json:"amount_cents_from" db:"amount_cents_from"`
 	CurrencyFrom      *string          `json:"currency_from" db:"currency_from"`
-	ExchangeRateRatio float64          `json:"currencies_exchange_rate_ratio" db:"currencies_exchange_rate_ratio"`
+	ExchangeRateRatio float64          `json:"exchange_rate_ratio" db:"exchange_rate_ratio"`
 }
