@@ -28,7 +28,7 @@ type User struct {
 	Email                 NullString `json:"email" db:"email"`
 	Image                 NullString `json:"image" db:"image"`
 	SubscriptionExpiredAt *time.Time `json:"subscription_expired_at" db:"subscription_expired_at"`
-	MainAccountNumber     uuid.UUID  `json:"mainAccountNumber" db:"mainAccountNumber"`
+	MainAccountNumber     uuid.UUID  `json:"mainAccountNumber" db:"main_account_number"`
 	UserName
 	UserPassword
 }

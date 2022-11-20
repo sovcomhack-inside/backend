@@ -8,7 +8,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users (
   "password_salt"           text NOT NULL,
   "created_at"              timestamptz not null default now(),
   "updated_at"              timestamptz not null default now(),
-  "subscription_expired_at" timestamptz
+  "subscription_expired_at" timestamptz,
+  "main_account_number" uuid
 );
 
 CREATE TYPE user_status AS ENUM (
