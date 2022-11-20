@@ -213,6 +213,8 @@ paths:
           schema:
             type: string
             enum: ["USD", "EUR", "RUB", "ILS", "INR", "JPY", "GBP", "KZT", "UAH", "EGP", "CNY"]
+          required: true
+
       responses:
         "500":
           description: Internal error
@@ -223,6 +225,61 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ListCurrenciesResponse"
+
+  /currencies/data:
+    get:
+      tags:
+        - Currencies
+      summary: Get currency price data for N days
+      parameters:
+        - in: query
+          name: code
+          description: currency code
+          schema:
+            type: string
+            enum: ["USD", "EUR", "RUB", "ILS", "INR", "JPY", "GBP", "KZT", "UAH", "EGP", "CNY"]
+          required: true
+        - in: query
+          name: ndays
+          description: number of days. For n=1 data will be by hours
+          schema:
+            type: integer
+            example: 1
+          required: true
+
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListCurrencyDataResponse"
+
+  /operations/list:
+    post:
+      tags:
+        - Operations
+      summary: List account operations
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListOperationsRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOperationsResponse"
 
   /admin/login:
     post:
@@ -284,7 +341,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ListUsersResponse"
-                
+
   /user/get:
     get:
       tags:
@@ -525,6 +582,38 @@ components:
           items:
             $ref: '#/components/schemas/CurrencyItem'
 
+    ListCurrencyDataResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: RUB
+        price_data:
+          type: array
+          items:
+            type: number
+            example: 34.12
+
+    ListOperationsRequest:
+      type: object
+      properties:
+        account_numbers_in:
+          type: array
+          items:
+            type: string
+        operation_types_in:
+          type: array
+          items:
+            type: string
+
+    ListOperationsResponse:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/OperationItem'
+
     CurrencyItem:
       type: object
       properties:
@@ -563,6 +652,42 @@ components:
           type: string
           example: 2006-1-2
 
+    OperationItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 2bcc6904-6870-11ed-9022-0242ac120002
+        purpose:
+          type: string
+          example: Вывод со счета на банковскую карту
+        time:
+          type: string
+          example: 2022-11-20T01:28:59.586222Z
+        operation_type:
+          type: string
+          example: withdrawal
+        account_number_to:
+          type: string
+          example: 2bcc6904-6870-11ed-9022-0242ac120002
+        amount_cents_to:
+          type: number
+          example: 1000.10
+        currency_to:
+          type: string
+          example: RUB
+        account_number_from:
+          type: string
+          example: 2bcc6904-6870-11ed-9022-0242ac120002
+        amount_cents_from:
+          type: number
+          example: 100.01
+        currency_from:
+          type: string
+          example: USD
+        exchange_rate_ratio:
+          type: number
+          example: 10
 
     AdminLoginRequest:
       type: object
@@ -580,7 +705,7 @@ components:
         status:
           type: string
           enum: [pending_approve, approved, banned]
-    
+
     ListUsersRequest:
       type: object
       properties:
@@ -591,7 +716,7 @@ components:
           type: array
           items:
             type: string
-    
+
     ListUsersResponse:
       type: object
       properties:
@@ -599,7 +724,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/User"
-    
+
     User:
       type: object
       properties:
@@ -613,6 +738,7 @@ components:
           type: string
         lastName:
           type: string
+
 
     BasicResponse:
       type: object
