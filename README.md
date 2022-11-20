@@ -2,11 +2,11 @@
 
 ## Состав команды
 
-- Артемий Звонарев | [@artemiyzvonarev](t.me/artemiyzvonarev) | **Product Manager** **BizDev**
-- Никита Биченов | [@weij33t](t.me/weij33t) | **Frontend Engineer**
-- Кирилл Смирнов | [@yabhzett](t.me/yabhzett) | **Designer**
-- Илья Новиков | [@ougirez](t.me/ougirez) | **Backend Engineer**
-- Оганес Мирзоян | [@senago](t.me/senago) | **Fullstack Engineer**
+- Артемий Звонарев | [@artemiyzvonarev](https://t.me/artemiyzvonarev) | **Product Manager** **BizDev**
+- Никита Биченов | [@weij33t](https://t.me/weij33t) | **Frontend Engineer**
+- Кирилл Смирнов | [@yabhzett](https://t.me/yabhzett) | **Designer**
+- Илья Новиков | [@ougirez](https://t.me/ougirez) | **Backend Engineer**
+- Оганес Мирзоян | [@senago](https://t.me/senago) | **Fullstack Engineer**
 
 ## Ссылки
 
