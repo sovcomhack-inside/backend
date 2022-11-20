@@ -66,7 +66,7 @@ func (c *Controller) SubscribeToFuntik(ctx echo.Context) error {
 			AccountNumberFrom: &request.AccountNumberFrom,
 			AmountCentsFrom:   lo.ToPtr(decimal.NewFromInt(request.SubscribePriceCents)),
 			CurrencyFrom:      lo.ToPtr(acc.Currency),
-			ExchangeRateRatio: 1,
+			ExchangeRateRatio: decimal.NewFromInt(1),
 		},
 	}
 	err = c.store.InsertOperations(ctx.Request().Context(), operations)
@@ -77,7 +77,25 @@ func (c *Controller) SubscribeToFuntik(ctx echo.Context) error {
 	return nil
 }
 
+type funtikStuff struct {
+	IsNextOperationBuy   bool
+	UpwardTrendThreshold float64
+	DipThreshold         float64
+	ProfitThreshold      float64
+	StopLossThreshold    float64
+	LastOpPrice          float64
+	CurrentPrice         float64
+}
+
 func runFuntik(ctx context.Context, user *core.User, funtikRUBAcc, funtikUSDAcc *core.Account) {
+	stuff := funtikStuff{
+		IsNextOperationBuy:   true,
+		UpwardTrendThreshold: 1.50,
+		DipThreshold:         -2.25,
+		ProfitThreshold:      1.25,
+		StopLossThreshold:    -2.00,
+	}
+	stuff.decideToBuy()
 	for {
 		if user.SubscriptionExpiredAt != nil && user.SubscriptionExpiredAt.After(time.Now()) {
 			break
@@ -86,4 +104,11 @@ func runFuntik(ctx context.Context, user *core.User, funtikRUBAcc, funtikUSDAcc 
 		// do some work
 		time.Sleep(1 * time.Second)
 	}
+}
+
+func (c *funtikStuff) decideToBuy() bool {
+	//f
+	//
+	//currentPrice :=
+	return false
 }
