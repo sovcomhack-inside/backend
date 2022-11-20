@@ -13,7 +13,10 @@ func (c *Controller) ListCurrencies(ctx echo.Context) error {
 		return err
 	}
 
-	currencies := c.service.ListCurrencies(ctx.Request().Context(), request.Code)
+	currencies, err := c.service.ListCurrencies(ctx.Request().Context(), request.Code)
+	if err != nil {
+		return err
+	}
 
 	return ctx.JSON(http.StatusOK, &dto.ListCurrenciesResponse{Currencies: currencies})
 }
@@ -24,6 +27,9 @@ func (c *Controller) GetCurrencyData(ctx echo.Context) error {
 		return err
 	}
 
-	resp := c.service.GetCurrencyData(ctx.Request().Context(), request.Code, request.DaysNumber)
+	resp, err := c.service.GetCurrencyData(ctx.Request().Context(), request.Code, request.BaseCurrencyCode, request.DaysNumber)
+	if err != nil {
+		return err
+	}
 	return ctx.JSON(http.StatusOK, resp)
 }

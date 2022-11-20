@@ -9,8 +9,9 @@ type ListCurrenciesResponse struct {
 }
 
 type GetCurrencyDataRequest struct {
-	Code       string `query:"code" validate:"required"`
-	DaysNumber int    `query:"ndays" validate:"required"`
+	Code             string `query:"code" validate:"required"`
+	BaseCurrencyCode string `query:"base" validate:"required"`
+	DaysNumber       int    `query:"ndays" validate:"required"`
 }
 
 type GetCurrencyDataResponse struct {

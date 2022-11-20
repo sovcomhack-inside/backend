@@ -8,6 +8,7 @@ service:
   telegram_token: 5867329772:AAFTdQjk9oo0lvuEYEb9d-8rwUPCW14X3fo
   jwt_secret: secret
   secret: secret
+  exchange_rates_secret: zyAc783IAR5xxXdgxohNEaoCMQdH8oFa
 
 postgres:
   connection_string: postgres://root:rootpassword@postgres:5432/inside
