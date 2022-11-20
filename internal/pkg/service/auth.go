@@ -24,16 +24,21 @@ func (svc *service) SignupUser(ctx context.Context, request *dto.SignupUserReque
 		UserName: request.UserName,
 		Email:    core.NewNullString(request.Email),
 	}
-
 	if err := user.UserPassword.Init(request.Password); err != nil {
 		return nil, err
 	}
+
+	if err := svc.store.CreateUser(ctx, user); err != nil {
+		return nil, err
+	}
+
 	mainAccount, err := svc.CreateAccount(ctx, &dto.CreateAccountRequest{
 		UserID:   user.ID,
 		Currency: "RUB",
 	})
 	user.MainAccountNumber = mainAccount.Account.Number
-	if err = svc.store.CreateUser(ctx, user); err != nil {
+	err = svc.store.UpdateUser(ctx, user)
+	if err != nil {
 		return nil, err
 	}
 

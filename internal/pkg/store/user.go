@@ -79,6 +79,16 @@ func (s *store) GetUserStatus(ctx context.Context, id int64) (string, error) {
 	return status, nil
 }
 
+func (s *store) UpdateUser(ctx context.Context, user *core.User) error {
+	query := builder().Update(tableUsers).
+		Set("main_account_number", user.MainAccountNumber).
+		Where(squirrel.Eq{"id": user.ID})
+	if _, err := s.pool.Execx(ctx, query); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *store) ListUsers(ctx context.Context, request *dto.ListUsersRequest) ([]core.User, error) {
 	users := []core.User{}
 	query := builder().Select("id", "email", "image", "first_name", "last_name").From("users")
