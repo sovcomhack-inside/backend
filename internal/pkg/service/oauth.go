@@ -9,8 +9,8 @@ import (
 )
 
 func (svc *service) OAuthTelegram(ctx context.Context, request *dto.OAuthTelegramRequest) error {
-	if err := svc.store.LinkTelegramID(ctx, request.ID, request.TelegramID); err != nil {
-		return fmt.Errorf("CreateUser: %w", err)
+	if err := svc.store.LinkTelegramID(ctx, request.UserID, request.TelegramID); err != nil {
+		return fmt.Errorf("LinkTelegramID: %w", err)
 	}
 	return nil
 }

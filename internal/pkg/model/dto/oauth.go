@@ -1,6 +1,6 @@
 package dto
 
 type OAuthTelegramRequest struct {
-	ID         int64
+	UserID     int64 `query:"param" validate:"required"`
 	TelegramID int64 `query:"id" validate:"required"`
 }

@@ -14,18 +14,20 @@ import (
 type binderImpl struct{}
 
 func (b *binderImpl) Bind(i interface{}, ctx echo.Context) error {
-	db := new(echo.DefaultBinder)
+	db := &echo.DefaultBinder{}
 
-	buf := new(bytes.Buffer)
+	buf := &bytes.Buffer{}
 	_, err := buf.ReadFrom(ctx.Request().Body)
 	if err != nil {
 		log.Errorf("Unmarshal error: %s", err)
 		return err
 	}
+
 	err = sonic.Unmarshal(buf.Bytes(), i)
 	if err != nil {
 		log.Errorf("Unmarshal error: %s", err)
 	}
+
 	if err := db.BindQueryParams(ctx, i); err != nil {
 		return fmt.Errorf("%w: %v", constants.ErrBindRequest, err)
 	}

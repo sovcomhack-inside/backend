@@ -56,7 +56,7 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	account.POST("/sell", controller.MakeSale)
 
 	oauth := api.Group("/oauth")
-	oauth.GET("/telegram", controller.OAuthTelegram, svc.OAuthTelegramMiddleware)
+	oauth.GET("/telegram/:user_id", controller.OAuthTelegram, svc.OAuthTelegramMiddleware)
 
 	admin := api.Group("/admin")
 	admin.POST("/login", controller.LoginAdmin)
