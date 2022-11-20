@@ -10,7 +10,7 @@ import (
 	"github.com/sovcomhack-inside/internal/pkg/store/xpgx"
 )
 
-var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt", "subscription_expired_at"}
+var userColumns = []string{"id", "email", "image", "first_name", "last_name", "password_hash", "password_salt"}
 
 func (s *store) CreateUser(ctx context.Context, user *core.User) error {
 	return s.withTx(ctx, func(ctx context.Context, tx Tx) error {

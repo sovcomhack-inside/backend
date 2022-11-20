@@ -10,10 +10,10 @@ import (
 type OperationType string
 
 const (
-	OperationTypeRefill     OperationType = "refill"
-	OperationTypeWithdrawal OperationType = "withdrawal"
-	OperationTypeTransfer   OperationType = "transfer"
-	OperationTypeSubscribe  OperationType = "subscribe"
+	OperationTypeRefill       OperationType = "refill"
+	OperationTypeWithdrawal   OperationType = "withdrawal"
+	OperationTypeTransfer     OperationType = "transfer"
+	OperationTypeSubscription OperationType = "subscription"
 )
 
 type Operation struct {
