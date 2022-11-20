@@ -284,6 +284,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ListUsersResponse"
+                
+  /user/get:
+    get:
+      tags:
+        - User
+      summary: Get User Data
+      security: [ ]
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 
 components:
   parameters:
