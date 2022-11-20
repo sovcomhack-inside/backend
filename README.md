@@ -1,7 +1,5 @@
 # Sovcombank Team Challenge 2022 | Inside
 
-[[_TOC_]]
-
 ## Состав команды
 
 - Артемий Звонарев | [@artemiyzvonarev](t.me/artemiyzvonarev) | **Product Manager** **BizDev**
