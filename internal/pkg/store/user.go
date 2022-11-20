@@ -31,6 +31,15 @@ func (s *store) CreateUser(ctx context.Context, user *core.User) error {
 	})
 }
 
+func (s *store) GetUserByID(ctx context.Context, id int64) (*core.User, error) {
+	var user core.User
+	query := builder().Select(userColumns...).From(tableUsers).Where(squirrel.Eq{"id": id})
+	if err := s.pool.Getx(ctx, &user, query); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (s *store) GetUserByEmail(ctx context.Context, email string) (*core.User, error) {
 	query := builder().Select(userColumns...).From(tableUsers)
 	query = query.Where(squirrel.Eq{"email": email})

@@ -43,6 +43,9 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	auth.POST("/login", controller.LoginUser)
 	auth.DELETE("/logout", controller.LogoutUser)
 
+	user := api.Group("/user", svc.AuthMiddleware)
+	user.GET("/get", controller.GetUser)
+
 	account := api.Group("/accounts", svc.AuthMiddleware)
 
 	account.POST("/create", controller.CreateAccount)

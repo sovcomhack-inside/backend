@@ -28,7 +28,7 @@ func NewStore(pool Pool) Store {
 type UserStore interface {
 	CreateUser(ctx context.Context, user *core.User) error
 	// ListUsers(ctx context.Context) ([]core.User, error)
-	// GetUserByID(ctx context.Context, ID string) (*core.User, error)
+	GetUserByID(ctx context.Context, id int64) (*core.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*core.User, error)
 	// GetUsersByID(ctx context.Context, IDs []string) ([]core.User, error)
 	// UpdateUser(ctx context.Context, user *core.User) error
