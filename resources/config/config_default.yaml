@@ -9,6 +9,7 @@ service:
   jwt_secret:
   secret:
   exchange_rates_secret:
+  mock_enabled: false
 
 postgres:
   connection_string:
