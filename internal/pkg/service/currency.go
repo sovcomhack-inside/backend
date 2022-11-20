@@ -14,8 +14,8 @@ type CurrencyService interface {
 }
 
 func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) []*dto.CurrencyChangeInfo {
-	currencyItems := make([]*dto.CurrencyChangeInfo, 0, len(currencyCodeToName)-1)
-	for code, name := range currencyCodeToName {
+	currencyItems := make([]*dto.CurrencyChangeInfo, 0, len(CurrencyCodeToName)-1)
+	for code, name := range CurrencyCodeToName {
 		if code != forCurrencyCode {
 			currencyItems = append(currencyItems, &dto.CurrencyChangeInfo{
 				Code:           code,
@@ -75,18 +75,4 @@ func findCurrentPrices(ctx context.Context, forCurrencyCode string) {
 	//body, err := ioutil.ReadAll(res.Body)
 	//
 	//fmt.Println(string(body))
-}
-
-var currencyCodeToName = map[string]string{
-	"USD": "Доллар США",
-	"EUR": "Евро",
-	"ILS": "Новый израильский шекель",
-	"INR": "Индийская рупия",
-	"JPY": "Йена",
-	"RUB": "Российский рубль",
-	"GBP": "Фунт Стерлингов",
-	"KZT": "Тенге",
-	"UAH": "Гривна",
-	"EGP": "Египетский фунт",
-	"CNY": "Китайский юань",
 }

@@ -46,6 +46,7 @@ var (
 	ErrNegativeCredit  = &CodedError{errors.New("non-positive credit amount for withdraw"), http.StatusBadRequest}
 	ErrAccountNotFound = &CodedError{errors.New("account not found with such a number"), http.StatusBadRequest}
 	ErrNotEnoughMoney  = &CodedError{errors.New("not enough money"), http.StatusBadRequest}
+	ErrBadRequest      = &CodedError{errors.New("bad request"), http.StatusBadRequest}
 
 	// Internal
 	ErrSignToken      = &CodedError{errors.New("failed to sign token"), http.StatusInternalServerError}

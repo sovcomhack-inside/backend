@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/shopspring/decimal"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
+	"github.com/sovcomhack-inside/internal/pkg/model"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 )
 
@@ -21,6 +22,9 @@ func (c *Controller) CreateAccount(ctx echo.Context) error {
 		return fmt.Errorf("can't resolve user_id")
 	}
 	request.UserID = ctx.Get(constants.CtxKeyUserID).(int64)
+	if _, ok := model.CurrencyCodeToName[request.Currency]; !ok {
+		return constants.ErrBadRequest
+	}
 	response, err := c.service.CreateAccount(ctx.Request().Context(), request)
 	if err != nil {
 		return fmt.Errorf("account controller internal error: %w", err)
