@@ -365,6 +365,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
 
+  /oauth/telegram/{user_id}:
+    get:
+      tags:
+        - OAuth
+      summary: Telegram OAuth
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: number
+          required: true
+
 components:
   parameters:
     orderParam:
