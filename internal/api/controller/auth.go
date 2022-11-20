@@ -44,5 +44,6 @@ func (c *Controller) LoginUser(ctx echo.Context) error {
 
 func (c *Controller) LogoutUser(ctx echo.Context) error {
 	ctx.SetCookie(utils.CreateHttpOnlyCookie(constants.CookieKeyAuthToken, "", 0))
+	ctx.SetCookie(utils.CreateHttpOnlyCookie(constants.CookieKeySecretToken, "", 0))
 	return ctx.JSON(http.StatusOK, &dto.BasicResponse{})
 }

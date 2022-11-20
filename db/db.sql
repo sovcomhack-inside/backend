@@ -51,3 +51,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS operations (
    currency_from                    varchar(3),
    exchange_rate_ratio   float
 );
+
+CREATE UNLOGGED TABLE IF NOT EXISTS users_telegram_id (
+     "id" bigserial PRIMARY KEY REFERENCES users(id),
+     "user_id" bigint
+);

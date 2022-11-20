@@ -27,7 +27,7 @@ func (c *Controller) LoginAdmin(ctx echo.Context) error {
 
 	ctx.SetCookie(utils.CreateHttpOnlyCookie(constants.CookieKeySecretToken, authToken, viper.GetInt64(constants.ViperJWTTTLKey)))
 
-	return ctx.NoContent(http.StatusOK)
+	return ctx.JSON(http.StatusOK, &dto.BasicResponse{})
 }
 
 func (c *Controller) UpdateUserStatus(ctx echo.Context) error {
@@ -42,4 +42,18 @@ func (c *Controller) UpdateUserStatus(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, response)
+}
+
+func (c *Controller) ListUsers(ctx echo.Context) error {
+	request := &dto.ListUsersRequest{}
+	if err := ctx.Bind(request); err != nil {
+		return err
+	}
+
+	users, err := c.store.ListUsers(ctx.Request().Context(), request)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, &dto.ListUsersResponse{Users: users})
 }

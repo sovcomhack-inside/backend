@@ -258,44 +258,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ListCurrencyDataResponse"
 
-  /admin/login:
-    post:
-      tags:
-        - Admin
-      summary: Login as Admin
-      security: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AdminLoginRequest"
-        required: true
-      responses:
-        "500":
-          description: Internal error
-          content: { }
-        "200":
-          description: Success
-
-  /admin/update_user_status:
-    put:
-      tags:
-        - Admin
-      summary: Update User Status
-      security: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AdminUpdateUserStatusRequest"
-        required: true
-      responses:
-        "500":
-          description: Internal error
-          content: { }
-        "200":
-          description: Success
-
   /operations/list:
     post:
       tags:
@@ -319,6 +281,83 @@ paths:
               schema:
                 $ref: "#/components/schemas/ListOperationsResponse"
 
+  /admin/login:
+    post:
+      tags:
+        - Admin
+      summary: Login as Admin
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+
+  /admin/update_user_status:
+    post:
+      tags:
+        - Admin
+      summary: Update User Status
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserStatusRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+
+  /admin/list_users:
+    post:
+      tags:
+        - Admin
+      summary: List Users
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListUsersRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListUsersResponse"
+
+  /user/get:
+    get:
+      tags:
+        - User
+      summary: Get User Data
+      security: [ ]
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 
 components:
   parameters:
@@ -379,7 +418,7 @@ components:
           example: password
 
     SignupUserResponse:
-      $ref: "#/components/schemas/BasicResponse"
+      $ref: "#/components/schemas/User"
 
     LoginUserRequest:
       type: object
@@ -392,7 +431,7 @@ components:
           example: password
 
     LoginUserResponse:
-      $ref: "#/components/schemas/BasicResponse"
+      $ref: "#/components/schemas/User"
 
     CreateAccountRequest:
       type: object
@@ -666,6 +705,39 @@ components:
         status:
           type: string
           enum: [pending_approve, approved, banned]
+
+    ListUsersRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending_approve, approved, banned]
+        email_in:
+          type: array
+          items:
+            type: string
+
+    ListUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        image:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
 
 
     BasicResponse:

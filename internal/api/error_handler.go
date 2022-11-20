@@ -11,22 +11,17 @@ import (
 
 func httpErrorHandler(err error, c echo.Context) {
 	msg := err.Error()
+	code := http.StatusInternalServerError
 	for err != nil {
 		if ce, ok := err.(*constants.CodedError); ok {
-			code := ce.Code()
-
-			_ = c.JSON(code, dto.ErrorResponse{
-				Message: msg,
-				Code:    code,
-			})
-
-			return
+			code = ce.Code()
+			break
 		}
 		err = errors.Unwrap(err)
 	}
 
-	_ = c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	_ = c.JSON(code, dto.ErrorResponse{
 		Message: msg,
-		Code:    http.StatusInternalServerError,
+		Code:    code,
 	})
 }

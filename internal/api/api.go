@@ -36,12 +36,15 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	svc.service = service.NewService(store)
 
 	api := svc.router.Group("/api/v1")
-	controller := controller.NewController(svc.service)
+	controller := controller.NewController(store, svc.service)
 
 	auth := api.Group("/auth")
 	auth.POST("/signup", controller.SignupUser)
 	auth.POST("/login", controller.LoginUser)
 	auth.DELETE("/logout", controller.LogoutUser)
+
+	user := api.Group("/user", svc.AuthMiddleware)
+	user.GET("/get", controller.GetUser)
 
 	account := api.Group("/accounts", svc.AuthMiddleware)
 
@@ -57,7 +60,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 
 	admin := api.Group("/admin")
 	admin.POST("/login", controller.LoginAdmin)
-	admin.PUT("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
+	admin.POST("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
+	admin.POST("/list_users", controller.ListUsers, svc.AdminMiddleware)
 
 	currencies := api.Group("/currencies", svc.AuthMiddleware)
 	currencies.GET("/list", controller.ListCurrencies)
