@@ -22,6 +22,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users_statuses (
     "status" user_status DEFAULT 'approved' NOT NULL
 );
 
+CREATE INDEX CONCURRENTLY users_statuses_idx ON users_statuses (status);
+
 CREATE UNLOGGED TABLE IF NOT EXISTS accounts (
      number     uuid not null primary key default gen_random_uuid(),
      user_id    bigint,
@@ -59,3 +61,5 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users_telegram_id (
      "id" bigserial PRIMARY KEY REFERENCES users(id),
      "user_id" bigint
 );
+
+VACUUM ANALYZE;
