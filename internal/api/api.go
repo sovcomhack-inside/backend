@@ -59,5 +59,8 @@ func NewAPIService(store store.Store) (*APIService, error) {
 	admin.POST("/login", controller.LoginAdmin)
 	admin.PUT("/update_user_status", controller.UpdateUserStatus, svc.AdminMiddleware)
 
+	currencies := api.Group("/currencies", svc.AuthMiddleware)
+	currencies.GET("/list", controller.ListCurrencies)
+
 	return svc, nil
 }
