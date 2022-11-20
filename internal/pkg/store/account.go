@@ -32,9 +32,9 @@ type SearchAccountsOpts struct {
 // CreateAccount создать счет в базе
 func (s *store) CreateAccount(ctx context.Context, account *core.Account) error {
 	query := builder().Insert(tableAccounts).
-		Columns("number", "user_id", "currency").
-		Values(account.Number, account.UserID, account.Currency).
-		Suffix("ON CONFLICT (user_id, currency) DO NOTHING RETURNING created_at")
+		Columns("number", "user_id", "currency", "for_bot").
+		Values(account.Number, account.UserID, account.Currency, account.ForBot).
+		Suffix("ON CONFLICT (user_id, currency, for_bot) DO NOTHING RETURNING created_at")
 
 	if err := s.pool.QueryxRow(ctx, query).Scan(&account.CreatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -48,7 +48,7 @@ func (s *store) CreateAccount(ctx context.Context, account *core.Account) error 
 
 // SearchUserAccounts найти все счета по заданным параметрам
 func (s *store) SearchUserAccounts(ctx context.Context, opts SearchAccountsOpts) ([]core.Account, error) {
-	query := builder().Select("number", "user_id", "currency", "balance", "created_at").
+	query := builder().Select("number", "user_id", "currency", "balance", "created_at", "for_bot").
 		From(tableAccounts)
 	if opts.UserID != 0 {
 		query = query.Where(squirrel.Eq{"user_id": opts.UserID})
@@ -159,12 +159,18 @@ func (s *store) SubscribeToFuntik(ctx context.Context, req *dto.SubscribeToFunti
 		if err != nil {
 			return err
 		}
+		if acc.Balance.LessThanOrEqual(decimal.NewFromInt(req.SubscribePriceCents)) {
+			return constants.ErrNotEnoughMoney
+		}
 		err = updateAccountBalance(ctx, acc, decimal.NewFromInt(req.SubscribePriceCents).Neg(), tx)
 		if err != nil {
 			return err
 		}
 		err = updateSubscriptionExpiredAt(ctx, user, tx)
-		acc = accFrom
+		if err != nil {
+			return err
+		}
+		accFrom = acc
 		return nil
 	})
 	return
@@ -173,7 +179,7 @@ func (s *store) SubscribeToFuntik(ctx context.Context, req *dto.SubscribeToFunti
 func updateSubscriptionExpiredAt(ctx context.Context, user *core.User, executor xpgx.Executor) error {
 	query := builder().
 		Update(tableUsers).
-		Set("subscription_expired_at", time.Now()).
+		Set("subscription_expired_at", time.Now().AddDate(0, 1, 0)).
 		Where(squirrel.Eq{"id": user.ID})
 	if _, err := executor.Execx(ctx, query); err != nil {
 		return err

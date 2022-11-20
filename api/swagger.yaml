@@ -326,6 +326,29 @@ paths:
               schema:
                 $ref: "#/components/schemas/ListOperationsResponse"
 
+  /funtik/subscribe:
+    post:
+      tags:
+        - Funtik
+      summary: Trading bot by subsrcibtion
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscribeToFuntikRequest"
+        required: true
+      responses:
+        "500":
+          description: Internal error
+          content: { }
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscribeToFuntikResponse"
+
 
 components:
   parameters:
@@ -588,6 +611,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OperationItem'
+
+    SubscribeToFuntikRequest:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        account_number_from:
+          type: string
+          example: fb33fd0e-6782-11ed-9022-0242ac120002
+        subscribe_price_cents:
+          type: integer
+          example: 30000
+
+    SubscribeToFuntikResponse:
+      $ref: "#/components/schemas/BasicResponse"
 
     CurrencyItem:
       type: object

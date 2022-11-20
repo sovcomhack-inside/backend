@@ -39,7 +39,7 @@ CREATE UNIQUE INDEX CONCURRENTLY account_user_id_currency
 create type operation_type as enum (
     'refill',
     'withdrawal',
-    'transfer'
+    'transfer',
     'subscription'
 );
 
@@ -61,5 +61,3 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users_telegram_id (
      "id" bigserial PRIMARY KEY REFERENCES users(id),
      "user_id" bigint
 );
-
-VACUUM ANALYZE;

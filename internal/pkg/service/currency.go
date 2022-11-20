@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"time"
 
+	"github.com/shopspring/decimal"
 	"github.com/sovcomhack-inside/internal/pkg/model"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
 	"github.com/spf13/viper"
@@ -36,10 +38,21 @@ func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) 
 }
 
 func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base string, ndays int) (*dto.GetCurrencyDataResponse, error) {
-	var currencyData []dto.PriceData
+	var priceData []dto.PriceData
 
 	dateNow := time.Now()
 	dateDaysBefore := dateNow.AddDate(0, 0, -ndays)
+
+	if viper.GetBool("mock_enabled") {
+		for i := 0; i < ndays; i++ {
+			priceData = append(priceData, dto.PriceData{
+				Price: float64(rand.Intn(100)) + rand.Float64(),
+				Date:  dateDaysBefore.Format("2006-01-02"),
+			})
+			dateDaysBefore = dateDaysBefore.AddDate(0, 0, 1)
+		}
+		return &dto.GetCurrencyDataResponse{Code: forCurrencyCode, PriceData: priceData}, nil
+	}
 
 	url := fmt.Sprintf("https://api.apilayer.com/exchangerates_data/timeseries?start_date=%s&end_date=%s", dateDaysBefore.Format("2006-01-02"), dateNow.Format("2006-01-02"))
 
@@ -81,7 +94,7 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 		}
 		currentData := data[dateStr].(map[string]interface{})
 		basePrice := currentData[base].(float64)
-		currencyData = append(currencyData, dto.PriceData{
+		priceData = append(priceData, dto.PriceData{
 			Price: basePrice / currentData[forCurrencyCode].(float64),
 			Date:  dateStr,
 		})
@@ -90,11 +103,53 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	}
 	return &dto.GetCurrencyDataResponse{
 		Code:      forCurrencyCode,
-		PriceData: currencyData,
+		PriceData: priceData,
 	}, nil
 }
 
+func latestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error) {
+	if viper.GetBool("mock_enabled") {
+		return decimal.NewFromFloat(float64(rand.Intn(100)) + rand.Float64()), nil
+	}
+
+	url := fmt.Sprintf("https://api.apilayer.com/exchangerates_data/convert?to=%s&from=%s&amount=1", codeTo, codeFrom)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("apikey", "ok9DGKXcjUaZmv8nfI82T8SsUTFTuHyX")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		return decimal.Decimal{}, err
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return decimal.Decimal{}, err
+	}
+	var x map[string]interface{}
+	err = json.Unmarshal(body, &x)
+
+	price := x["result"].(float64)
+	return decimal.NewFromFloat(price), nil
+}
+
 func findCurrentPrices(ctx context.Context, base string, items []*dto.CurrencyChangeInfo) error {
+	if viper.GetBool("mock_enabled") {
+		for i := range items {
+			items[i].CurrentPrice = float64(rand.Intn(100)) + rand.Float64()
+			items[i].DayChangePct = float64(rand.Intn(4)) + rand.Float64()*float64(-1*rand.Intn(2))
+			items[i].DayChange = float64(rand.Intn(5)) + rand.Float64()*float64(-1*rand.Intn(2))
+			items[i].MonthChangePct = float64(rand.Intn(6)) + rand.Float64()*float64(-1*rand.Intn(2))
+			items[i].MonthChange = float64(rand.Intn(12)) + rand.Float64()*float64(-1*rand.Intn(2))
+		}
+		return nil
+	}
 	dateNow := time.Now().Format("2006-01-02")
 	dateDayBefore := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	dateMonthBefore := time.Now().AddDate(0, -1, 0).Format("2006-01-02")
@@ -123,12 +178,11 @@ func findCurrentPrices(ctx context.Context, base string, items []*dto.CurrencyCh
 		defer res.Body.Close()
 	}
 
-	var x map[string]interface{}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
+	var x map[string]interface{}
 	err = json.Unmarshal(body, &x)
 
 	url = fmt.Sprintf(
