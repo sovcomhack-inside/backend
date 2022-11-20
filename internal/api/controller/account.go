@@ -92,7 +92,7 @@ func (c *Controller) MakePurchase(ctx echo.Context) error {
 		return constants.ErrNegativeDebit
 	}
 	//rate := getRate(request.CurrencyTo, request.CurrencyFrom)
-	rate, err := c.service.LatestCurrencyPrice(request.CurrencyTo, request.CurrencyFrom)
+	rate, err := c.service.LatestCurrencyPrice(ctx.Request().Context(), request.CurrencyTo, request.CurrencyFrom)
 	reqDTO := &dto.TransferRequestDTO{
 		AccountFrom:       request.AccountNumberFrom,
 		CreditAmountCents: rate.Mul(request.DesiredAmountCents),
@@ -118,12 +118,13 @@ func (c *Controller) MakeSale(ctx echo.Context) error {
 	if request.SellingAmountCents.LessThanOrEqual(decimal.NewFromInt(0)) {
 		return constants.ErrNegativeCredit
 	}
-	rate := getRate(request.CurrencyFrom, request.CurrencyTo)
+	//rate := getRate(request.CurrencyFrom, request.CurrencyTo)
+	rate, err := c.service.LatestCurrencyPrice(ctx.Request().Context(), request.CurrencyFrom, request.CurrencyTo)
 	reqDTO := &dto.TransferRequestDTO{
 		AccountFrom:       request.AccountNumberFrom,
 		CreditAmountCents: request.SellingAmountCents,
 		AccountTo:         request.AccountNumberTo,
-		DebitAmountCents:  decimal.NewFromFloat(rate).Mul(request.SellingAmountCents),
+		DebitAmountCents:  rate.Mul(request.SellingAmountCents),
 	}
 	response, err := c.service.MakeTransfer(ctx.Request().Context(), reqDTO, rate)
 	if err != nil {
