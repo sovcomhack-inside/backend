@@ -72,8 +72,13 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	}
 	data := x["rates"].(map[string]interface{})
 
-	for i := 0; i < ndays; i++ {
+	i := 0
+	for i < ndays {
 		dateStr := dateDaysBefore.Format("2006-01-02")
+		if _, ok := data[dateStr]; !ok {
+			dateDaysBefore = dateDaysBefore.AddDate(0, 0, 1)
+			continue
+		}
 		currentData := data[dateStr].(map[string]interface{})
 		basePrice := currentData[base].(float64)
 		currencyData = append(currencyData, dto.PriceData{
@@ -81,6 +86,7 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 			Date:  dateStr,
 		})
 		dateDaysBefore = dateDaysBefore.AddDate(0, 0, 1)
+		i++
 	}
 	return &dto.GetCurrencyDataResponse{
 		Code:      forCurrencyCode,
