@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sovcomhack-inside/internal/pkg/constants"
 )
 
@@ -27,6 +28,7 @@ type User struct {
 	Email                 NullString `json:"email" db:"email"`
 	Image                 NullString `json:"image" db:"image"`
 	SubscriptionExpiredAt *time.Time `json:"subscription_expired_at" db:"subscription_expired_at"`
+	MainAccountNumber     uuid.UUID  `json:"mainAccountNumber" db:"mainAccountNumber"`
 	UserName
 	UserPassword
 }

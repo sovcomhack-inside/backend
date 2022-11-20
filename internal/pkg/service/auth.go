@@ -38,6 +38,11 @@ func (svc *service) SignupUser(ctx context.Context, request *dto.SignupUserReque
 		return nil, err
 	}
 
+	mainAccount, err := svc.CreateAccount(ctx, &dto.CreateAccountRequest{
+		UserID:   user.ID,
+		Currency: "RUB",
+	})
+	user.MainAccountNumber = mainAccount.Account.Number
 	return &dto.SignupUserResponse{User: user, AuthToken: authToken}, nil
 }
 
