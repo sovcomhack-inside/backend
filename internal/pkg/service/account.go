@@ -22,7 +22,7 @@ type AccountService interface {
 	ListUserAccounts(context.Context, *dto.ListUserAccountsRequest) (*dto.ListUserAccountResponse, error)
 	RefillAccount(context.Context, *dto.RefillAccountRequest) (*dto.RefillAccountResponse, error)
 	WithdrawFromAccount(context.Context, *dto.WithdrawFromAccountRequest) (*dto.WithdrawFromAccountResponse, error)
-	MakeTransfer(ctx context.Context, reqDTO *dto.TransferRequestDTO, exchangeRateRatio float64) (*dto.MakePurchaseResponse, error)
+	MakeTransfer(ctx context.Context, reqDTO *dto.TransferRequestDTO, exchangeRateRatio decimal.Decimal) (*dto.MakePurchaseResponse, error)
 }
 
 func (svc *service) CreateAccount(ctx context.Context, req *dto.CreateAccountRequest) (*dto.CreateAccountResponse, error) {
@@ -66,7 +66,7 @@ func (svc *service) RefillAccount(ctx context.Context, req *dto.RefillAccountReq
 			AccountNumberFrom: nil,
 			AmountCentsFrom:   nil,
 			CurrencyFrom:      nil,
-			ExchangeRateRatio: 1,
+			ExchangeRateRatio: decimal.NewFromInt(1),
 		},
 	}
 	err = svc.store.InsertOperations(ctx, operations)
@@ -97,7 +97,7 @@ func (svc *service) WithdrawFromAccount(ctx context.Context, req *dto.WithdrawFr
 			AccountNumberFrom: &req.AccountNumber,
 			AmountCentsFrom:   lo.ToPtr(req.CreditAmountCents.Neg()),
 			CurrencyFrom:      &account.Currency,
-			ExchangeRateRatio: 1,
+			ExchangeRateRatio: decimal.NewFromInt(1),
 		},
 	}
 	err = svc.store.InsertOperations(ctx, operations)
@@ -113,7 +113,7 @@ func (svc *service) WithdrawFromAccount(ctx context.Context, req *dto.WithdrawFr
 }
 
 // MakeTransfer перевести со счета на счет
-func (svc *service) MakeTransfer(ctx context.Context, reqDTO *dto.TransferRequestDTO, exchangeRateRatio float64) (*dto.MakePurchaseResponse, error) {
+func (svc *service) MakeTransfer(ctx context.Context, reqDTO *dto.TransferRequestDTO, exchangeRateRatio decimal.Decimal) (*dto.MakePurchaseResponse, error) {
 	accFrom, accTo, err := svc.store.TransferMoney(ctx, reqDTO)
 	if err != nil {
 		return nil, fmt.Errorf("accounts store error: %w", err)

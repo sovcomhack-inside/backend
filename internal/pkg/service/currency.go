@@ -18,6 +18,7 @@ import (
 type CurrencyService interface {
 	ListCurrencies(ctx context.Context, forCurrencyCode string) ([]*dto.CurrencyChangeInfo, error)
 	GetCurrencyData(ctx context.Context, forCurrencyCode, base string, ndays int) (*dto.GetCurrencyDataResponse, error)
+	LatestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error)
 }
 
 func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) ([]*dto.CurrencyChangeInfo, error) {
@@ -107,7 +108,7 @@ func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base s
 	}, nil
 }
 
-func latestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error) {
+func (svc *service) LatestCurrencyPrice(codeFrom, codeTo string) (decimal.Decimal, error) {
 	if viper.GetBool("service.mock_enabled") {
 		return decimal.NewFromFloat(float64(rand.Intn(100)) + rand.Float64()), nil
 	}
