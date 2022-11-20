@@ -5,18 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
-	"math/rand"
 	"net/http"
 	"time"
 
+	"github.com/sovcomhack-inside/internal/pkg/logger"
 	"github.com/sovcomhack-inside/internal/pkg/model"
 	"github.com/sovcomhack-inside/internal/pkg/model/dto"
+	"github.com/spf13/viper"
 )
 
 type CurrencyService interface {
 	ListCurrencies(ctx context.Context, forCurrencyCode string) ([]*dto.CurrencyChangeInfo, error)
-	GetCurrencyData(ctx context.Context, forCurrencyCode string, ndays int) *dto.GetCurrencyDataResponse
+	GetCurrencyData(ctx context.Context, forCurrencyCode, base string, ndays int) (*dto.GetCurrencyDataResponse, error)
 }
 
 func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) ([]*dto.CurrencyChangeInfo, error) {
@@ -36,21 +36,51 @@ func (svc *service) ListCurrencies(ctx context.Context, forCurrencyCode string) 
 	return currencyItems, nil
 }
 
-func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode string, ndays int) *dto.GetCurrencyDataResponse {
+func (svc *service) GetCurrencyData(ctx context.Context, forCurrencyCode, base string, ndays int) (*dto.GetCurrencyDataResponse, error) {
 	var currencyData []float64
 
-	if ndays == 1 {
-		currencyData = make([]float64, 24)
-	} else {
-		currencyData = make([]float64, ndays)
+	dateNow := time.Now()
+	dateDaysBefore := dateNow.AddDate(0, 0, -ndays)
+
+	url := fmt.Sprintf("https://api.apilayer.com/exchangerates_data/timeseries?start_date=%s&end_date=%s", dateDaysBefore.Format("2006-01-02"), dateNow.Format("2006-01-02"))
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("apikey", viper.GetString("service.exchange_rates_secret"))
+
+	if err != nil {
+		fmt.Println(err)
 	}
-	for i := 0; i < len(currencyData); i++ {
-		currencyData[i] = math.Ceil(rand.Float64()+float64(rand.Intn(20)+50)*100) / 100
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+	var x map[string]interface{}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(body, &x)
+	if err != nil {
+		return nil, err
+	}
+	logger.Errorf(ctx, string(body))
+	data := x["rates"].(map[string]interface{})
+
+	for i := 0; i < ndays; i++ {
+		currentData := data[dateDaysBefore.Format("2006-01-02")].(map[string]interface{})
+		basePrice := currentData[base].(float64)
+		currencyData = append(currencyData, basePrice/currentData[forCurrencyCode].(float64))
+		dateDaysBefore = dateDaysBefore.AddDate(0, 0, 1)
 	}
 	return &dto.GetCurrencyDataResponse{
 		Code:      forCurrencyCode,
 		PriceData: currencyData,
-	}
+	}, nil
 }
 
 func findCurrentPrices(ctx context.Context, items []*dto.CurrencyChangeInfo) error {
@@ -66,7 +96,7 @@ func findCurrentPrices(ctx context.Context, items []*dto.CurrencyChangeInfo) err
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Set("apikey", "zyAc783IAR5xxXdgxohNEaoCMQdH8oFa")
+	req.Header.Set("apikey", viper.GetString("service.exchange_rates_secret"))
 
 	if err != nil {
 		fmt.Println(err)
@@ -90,10 +120,10 @@ func findCurrentPrices(ctx context.Context, items []*dto.CurrencyChangeInfo) err
 		dateNow,
 	)
 	req, err = http.NewRequest("GET", url, nil)
-	req.Header.Set("apikey", "zyAc783IAR5xxXdgxohNEaoCMQdH8oFa")
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	req.Header.Set("apikey", viper.GetString("service.exchange_rates_secret"))
 
 	res, err = client.Do(req)
 	if err != nil {
@@ -105,6 +135,9 @@ func findCurrentPrices(ctx context.Context, items []*dto.CurrencyChangeInfo) err
 	var y map[string]interface{}
 
 	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
 	err = json.Unmarshal(body, &y)
 	if err != nil {
 		return err
