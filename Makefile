@@ -26,8 +26,7 @@ rebuild-backend:
 down:
 	docker-compose -f ${DCOMPOSE} down --remove-orphans
 
-build:
-	docker network inspect ${NETWORK} >/dev/null 2>&1 || docker network create --driver bridge ${NETWORK}
+build: network
 	cp ${CONFIG_SOURCE_PATH} ${CONFIG_PATH}
 	${DOCKER_BUILD_KIT} docker-compose build ${DCOMPOSE_BUILD_ARGS}
 
@@ -43,4 +42,4 @@ clean:
 	rm -rf postgres-data
 
 network:
-	docker network inspect api >/dev/null 2>&1 || docker network create --driver bridge api
+	docker network inspect ${NETWORK} >/dev/null 2>&1 || docker network create --driver bridge ${NETWORK}
